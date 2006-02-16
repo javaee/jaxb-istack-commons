@@ -5,6 +5,13 @@
 <project>
   <property file="project.properties" />
   
+  <!-- default build id -->
+  <tstamp>
+    <format property="now" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
+  </tstamp>
+  <property name="build.id" value="${now}(${user.name})" />
+  
+  
   <target name="compile">
     <mkdir dir="build/classes"/>
     <javac srcdir="src" 
@@ -18,6 +25,9 @@
 
   <target name="jar" depends="compile">
     <jar jarfile="build/${name}.jar">
+      <manifest>
+        <attribute name="Build-Id" value="${build.id}" />
+      </manifest>
       <fileset dir="build/classes" />
     </jar>
   </target>
