@@ -5,6 +5,7 @@ import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.type.TypeVariable;
+import com.sun.mirror.type.VoidType;
 import com.sun.mirror.type.WildcardType;
 import com.sun.mirror.type.PrimitiveType;
 
@@ -28,6 +29,8 @@ public abstract class APTTypeVisitor<T,P> {
             return onInterfaceType((InterfaceType)type,param);
         if (type instanceof TypeVariable )
             return onTypeVariable((TypeVariable)type,param);
+        if (type instanceof VoidType )
+            return onVoidType((VoidType)type,param);
         if(type instanceof WildcardType)
             return onWildcard((WildcardType) type,param);
         assert false;
@@ -39,6 +42,7 @@ public abstract class APTTypeVisitor<T,P> {
     protected abstract T onClassType(ClassType type, P param);
     protected abstract T onInterfaceType(InterfaceType type, P param);
     protected abstract T onTypeVariable(TypeVariable type, P param);
+    protected abstract T onVoidType(VoidType type, P param);
     protected abstract T onWildcard(WildcardType type, P param);
 
 }
