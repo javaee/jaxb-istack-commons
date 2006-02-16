@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+  Common part of the individual modules
+-->
+<project>
+  <property file="project.properties" />
+  
+  <target name="compile">
+    <mkdir dir="build/classes"/>
+    <javac srcdir="src" 
+      destdir="build/classes"
+      debug="on">
+      <classpath>
+        <fileset dir="." includes="lib/*.jar" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar jarfile="build/${name}.jar">
+      <fileset dir="build/classes" />
+    </jar>
+  </target>
+
+  <target name="src-zip">
+    <jar jarfile="build/${name}-src.zip">
+      <fileset dir="src" />
+    </jar>
+  </target>
+  
+  <target name="clean">
+    <delete dir="build" />
+  </target>
+  
+  <target name="dist" depends="jar, src-zip" />
+</project>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project name="istack-commons" basedir="." default="all">
+
+  <target name="clean">
+    <forEach target="clean" />
+  </target>
+  
+  <target name="dist">
+    <forEach target="dist" />
+  </target>
+
+  <macrodef name="forEach">
+    <attribute name="target" />
+    <sequential>
+      <subant target="@{target}">
+        <fileset dir="." includes="*/build.xml"/>
+      </subant>
+    </sequential>
+  </macrodef>
+
+</project>
