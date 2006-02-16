@@ -6,6 +6,7 @@ import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.type.TypeVariable;
 import com.sun.mirror.type.WildcardType;
+import com.sun.mirror.type.PrimitiveType;
 
 /**
  * Visitor that works on APT {@link TypeMirror} and computes a value.
@@ -19,6 +20,8 @@ public abstract class APTTypeVisitor<T,P> {
     public final T apply(TypeMirror type, P param) {
         if( type instanceof ArrayType)
             return onArrayType((ArrayType)type,param);
+        if( type instanceof PrimitiveType)
+            return onPrimitiveType((PrimitiveType)type,param);
         if (type instanceof ClassType )
             return onClassType((ClassType)type,param);
         if (type instanceof InterfaceType )
@@ -31,6 +34,7 @@ public abstract class APTTypeVisitor<T,P> {
         throw new IllegalArgumentException();
     }
 
+    protected abstract T onPrimitiveType(PrimitiveType type, P param);
     protected abstract T onArrayType(ArrayType type, P param);
     protected abstract T onClassType(ClassType type, P param);
     protected abstract T onInterfaceType(InterfaceType type, P param);
