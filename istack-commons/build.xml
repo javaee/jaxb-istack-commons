@@ -8,7 +8,7 @@
   <target name="dist">
     <forEach target="dist" />
   </target>
-  
+
   <target name="javadoc">
     <mkdir dir="build/javadoc"/>
     <javadoc destdir="build/javadoc"

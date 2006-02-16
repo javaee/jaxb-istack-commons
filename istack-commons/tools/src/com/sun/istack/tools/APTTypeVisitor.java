@@ -15,7 +15,7 @@ import com.sun.mirror.type.WildcardType;
  *
  * @author Kohsuke Kawaguchi
  */
-abstract class APTTypeVisitor<T,P> {
+public abstract class APTTypeVisitor<T,P> {
     public final T apply(TypeMirror type, P param) {
         if( type instanceof ArrayType)
             return onArrayType((ArrayType)type,param);
