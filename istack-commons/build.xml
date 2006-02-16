@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
-<project name="istack-commons" basedir="." default="all">
+<project name="istack-commons" basedir="." default="dist">
 
   <target name="clean">
+    <delete dir="build" />
     <forEach target="clean" />
   </target>
   
