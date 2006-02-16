@@ -8,6 +8,16 @@
   <target name="dist">
     <forEach target="dist" />
   </target>
+  
+  <target name="javadoc">
+    <mkdir dir="build/javadoc"/>
+    <javadoc destdir="build/javadoc"
+      windowtitle="istack-commons"
+      doctitle="istack-commons" >
+      <fileset dir="runtime/src"/>
+      <fileset dir="tools/src"/>
+    </javadoc>
+  </target>
 
   <macrodef name="forEach">
     <attribute name="target" />
