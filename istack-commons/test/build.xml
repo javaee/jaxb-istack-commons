@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<project name="istack-commons-test" basedir="." default="dist">
+  <property name="name" value="istack-commons-test" />
+  <import file="../build-common.xml"/>
+</project>
