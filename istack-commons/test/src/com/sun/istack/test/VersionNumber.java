@@ -25,6 +25,7 @@ public class VersionNumber implements Comparable<VersionNumber> {
     public static final VersionNumber v1_0_2 = new VersionNumber("1.0.2");
     public static final VersionNumber v1_0_3 = new VersionNumber("1.0.3");
     public static final VersionNumber v2_0   = new VersionNumber("2.0");
+    public static final VersionNumber v2_1   = new VersionNumber("2.1");
 
     private final int[] digits;
 
