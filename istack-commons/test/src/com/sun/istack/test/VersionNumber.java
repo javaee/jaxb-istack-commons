@@ -11,8 +11,11 @@ import java.util.StringTokenizer;
  * We allow a component to be not just a number, but also "ea", "ea1", "ea2".
  * "ea" is treated as "ea0", and eaN &lt; M for any M > 0.
  *
+ * <p>
+ * '*' is also allowed as a component, and '*' > M for any M > 0.
+ *
  * <pre>
- * 2.0.1 > 2.0.0 > 2.0.ea > 2.0
+ * 2.0.* > 2.0.1 > 2.0.0 > 2.0.ea > 2.0
  * </pre>
  *
  * @author
@@ -44,6 +47,9 @@ public class VersionNumber implements Comparable<VersionNumber> {
         int i=0;
         while( tokens.hasMoreTokens() ) {
             String token = tokens.nextToken().toLowerCase();
+            if(token.equals("*")) {
+                digits[i++] = 1000;
+            } else
             if(token.startsWith("ea")) {
                 if(token.length()==2)
                     digits[i++] = -1000;    // just "ea"
