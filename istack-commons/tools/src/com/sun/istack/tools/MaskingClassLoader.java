@@ -1,5 +1,7 @@
 package com.sun.istack.tools;
 
+import java.util.Collection;
+
 /**
  * {@link ClassLoader} that masks a specified set of classes
  * from its parent class loader.
@@ -17,9 +19,17 @@ public class MaskingClassLoader extends ClassLoader {
         this.masks = masks;
     }
 
+    public MaskingClassLoader(Collection<String> masks) {
+        this(masks.toArray(new String[masks.size()]));
+    }
+
     public MaskingClassLoader(ClassLoader parent, String... masks) {
         super(parent);
         this.masks = masks;
+    }
+
+    public MaskingClassLoader(ClassLoader parent, Collection<String> masks) {
+        this(parent, masks.toArray(new String[masks.size()]));
     }
 
     @Override
