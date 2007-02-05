@@ -48,7 +48,7 @@ import java.util.Enumeration;
  *
  * @author Kohsuke Kawaguchi
  */
-final class ParallelWorldClassLoader extends ClassLoader {
+public class ParallelWorldClassLoader extends ClassLoader {
 
     /**
      * Strings like "prefix/", "abc/", or "" to indicate
