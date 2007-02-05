@@ -6,8 +6,6 @@ import org.apache.tools.ant.IntrospectionHelper;
 import org.apache.tools.ant.Task;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +40,7 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
         ClassLoader ccl = Thread.currentThread().getContextClassLoader();
         try {
             ClassLoader cl = createClassLoader();
-            Class driver = cl.loadClass("com.sun.tools.ws.ant.WsImport");
+            Class driver = cl.loadClass(getCoreClassName());
 
             Task t = (Task)driver.newInstance();
             t.setProject(getProject());
@@ -65,6 +63,12 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
             Thread.currentThread().setContextClassLoader(ccl);
         }
     }
+
+    /**
+     * Returns the name of the class that extends {@link Task}.
+     * This class will be loaded int the protected classloader.
+     */
+    protected abstract String getCoreClassName();
 
     /**
      * Creates a protective class loader that will host the actual task.
