@@ -104,7 +104,7 @@ public class ParallelWorldClassLoader extends ClassLoader {
     /**
      * Given the URL inside jar, returns the URL to the jar itself.
      */
-    protected static URL toJarUrl(URL res) throws ClassNotFoundException, MalformedURLException {
+    public static URL toJarUrl(URL res) throws ClassNotFoundException, MalformedURLException {
         String url = res.toExternalForm();
         if(!url.startsWith("jar:"))
             throw new ClassNotFoundException("Loaded outside a jar "+url);
