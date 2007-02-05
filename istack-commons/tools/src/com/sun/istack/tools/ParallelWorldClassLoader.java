@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.Enumeration;
 
 /**
@@ -98,5 +99,17 @@ public class ParallelWorldClassLoader extends ClassLoader {
 
     protected Enumeration<URL> findResources(String name) throws IOException {
         return getParent().getResources(    prefix+name);
+    }
+
+    /**
+     * Given the URL inside jar, returns the URL to the jar itself.
+     */
+    protected static URL toJarUrl(URL res) throws ClassNotFoundException, MalformedURLException {
+        String url = res.toExternalForm();
+        if(!url.startsWith("jar:"))
+            throw new ClassNotFoundException("Loaded outside a jar "+url);
+        url = url.substring(4); // cut off jar:
+        url = url.substring(0,url.lastIndexOf('!'));    // cut off everything after '!'
+        return new URL(url);
     }
 }
