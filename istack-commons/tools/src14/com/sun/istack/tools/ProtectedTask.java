@@ -10,11 +10,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 /**
  * Executes a {@link Task} in a special class loader that allows
  * us to control where to load 2.1 APIs, even if we run in Java 6.
+ *
+ * <p>
+ * No JDK 1.5 code here, please. This allows us to detect "require JDK5" bug nicely.
  *
  * @author Kohsuke Kawaguchi
  * @author Bhakti Mehta
@@ -81,9 +85,9 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
     private class AntElement implements DynamicConfigurator {
         private final String name;
 
-        private final Map<String,String> attributes = new HashMap<String,String>();
+        private final Map/*<String,String>*/ attributes = new HashMap();
 
-        private final List<AntElement> elements = new ArrayList<AntElement>();
+        private final List/*<AntElement>*/ elements = new ArrayList();
 
         public AntElement(String name) {
             this.name = name;
@@ -106,12 +110,14 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
             IntrospectionHelper ih = IntrospectionHelper.getHelper(antObject.getClass());
 
             // set attributes first
-            for (Entry<String, String> att : attributes.entrySet()) {
-                ih.setAttribute(getProject(), antObject, att.getKey(), att.getValue());
+            for (Iterator itr = attributes.entrySet().iterator(); itr.hasNext();) {
+                Entry att = (Entry)itr.next();
+                ih.setAttribute(getProject(), antObject, (String)att.getKey(), (String)att.getValue());
             }
 
             // then nested elements
-            for (AntElement e : elements) {
+            for (Iterator itr = elements.iterator(); itr.hasNext();) {
+                AntElement e = (AntElement) itr.next();
                 Object child = ih.createElement(getProject(), antObject, e.name);
                 e.configure(child);
                 ih.storeElement(getProject(), antObject, child, e.name);

@@ -2,4 +2,18 @@
 <project name="istack-commons-tools" basedir="." default="dist">
   <property name="name" value="istack-commons-tools" />
   <import file="../build-common.xml"/>
+
+  <target name="compile">
+    <antcall target="build-common.compile" />
+    <javac srcdir="src14"
+      destdir="build/classes"
+      source="1.4"
+      target="1.4"
+      debug="on">
+      <classpath>
+        <fileset dir="." includes="lib/*.jar" />
+      </classpath>
+    </javac>
+  </target>
+
 </project>

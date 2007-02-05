@@ -2,7 +2,7 @@
 <!--
   Common part of the individual modules
 -->
-<project>
+<project name="build-common">
   <property file="project.properties" />
   
   <!-- default build id -->
