@@ -56,7 +56,7 @@ public class ParallelWorldClassLoader extends ClassLoader {
      */
     private final String prefix;
 
-    protected ParallelWorldClassLoader(ClassLoader parent,String prefix) {
+    public ParallelWorldClassLoader(ClassLoader parent,String prefix) {
         super(parent);
         this.prefix = prefix;
     }
