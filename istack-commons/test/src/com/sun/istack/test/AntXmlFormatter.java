@@ -74,6 +74,7 @@ public class AntXmlFormatter implements TestListener {
         }
 
         String testName = JUnitVersionHelper.getTestCaseName(test);
+        if(testName==null)      testName="unknown";
         antTest = new JUnitTest(testName);
         antTest.setCounts(1,0,0);
         try {
