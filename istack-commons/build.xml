@@ -44,10 +44,10 @@
     </taskdef>
 
     <prename srcdir="runtime/src" destdir="j2se-integration/runtime/src">
-      <pattern from="com.sun.istack" to="sun.istack.internal" />
+      <pattern from="com.sun.istack" to="com.sun.istack.internal" />
     </prename>
     <prename srcdir="tools/src" destdir="j2se-integration/tools/src">
-      <pattern from="com.sun.istack" to="sun.istack.internal" />
+      <pattern from="com.sun.istack" to="com.sun.istack.internal" />
     </prename>
 
     <!-- sanity test -->
