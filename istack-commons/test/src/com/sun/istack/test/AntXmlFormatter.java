@@ -98,13 +98,8 @@ public class AntXmlFormatter implements TestListener {
         // this doesn't work well with our harness, which uses the fully-qualified name as the
         // test names. To bridge this gap, detect the plain TestCase classes and fix up
         // the package name.
-        try {
-            if( test.getClass().getMethod("runBare").getDeclaringClass()== TestCase.class
-             && test.getClass().getMethod("runTest").getDeclaringClass()== TestCase.class)
-                testName = test.getClass().getPackage().getName()+"."+testName;
-        } catch (NoSuchMethodException e) {
-            // ignore
-        }
+        if(testName.indexOf('.')==-1)
+            testName = test.getClass().getPackage().getName()+"."+testName;
 
         return testName;
     }
