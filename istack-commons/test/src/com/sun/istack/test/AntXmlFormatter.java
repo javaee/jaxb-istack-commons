@@ -1,18 +1,18 @@
 package com.sun.istack.test;
 
-import junit.framework.TestListener;
-import junit.framework.Test;
 import junit.framework.AssertionFailedError;
-
-import java.io.File;
-import java.io.PrintStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
-
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestListener;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitTest;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitVersionHelper;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 
 /**
  * {@link TestListener} that bridges to {@link JUnitResultFormatter}.
@@ -73,8 +73,8 @@ public class AntXmlFormatter implements TestListener {
             throw new IllegalAccessError(e.getMessage());
         }
 
-        String testName = JUnitVersionHelper.getTestCaseName(test);
-        if(testName==null)      testName="unknown";
+        String testName = getTestName(test);
+
         antTest = new JUnitTest(testName);
         antTest.setCounts(1,0,0);
         try {
@@ -87,6 +87,26 @@ public class AntXmlFormatter implements TestListener {
         outBuf.reset();
         errBuf.reset();
         startTime = System.currentTimeMillis();
+    }
+
+    private String getTestName(Test test) {
+        String testName = JUnitVersionHelper.getTestCaseName(test);
+        if(testName==null)      testName="unknown";
+
+        // if you extend from junit.framework.TestCase where you have public testXXX methods,
+        // those test names are just the method name, and doesn't include the package name.
+        // this doesn't work well with our harness, which uses the fully-qualified name as the
+        // test names. To bridge this gap, detect the plain TestCase classes and fix up
+        // the package name.
+        try {
+            if( test.getClass().getMethod("runBare").getDeclaringClass()== TestCase.class
+             && test.getClass().getMethod("runTest").getDeclaringClass()== TestCase.class)
+                testName = test.getClass().getPackage().getName()+"."+testName;
+        } catch (NoSuchMethodException e) {
+            // ignore
+        }
+
+        return testName;
     }
 
     private String getResultFileName(String testName) {
