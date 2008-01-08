@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.sun.istack</groupId>
   <artifactId>istack-commons</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>pom</packaging>
 
   <name>istack common utility code</name>
@@ -17,6 +17,7 @@
     <connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:istack-commons/istack-commons</connection>
     <developerConnection>scm:cvs:pserver:${user.name}@cvs.dev.java.net:/cvs:istack-commons/istack-commons</developerConnection>
     <url>https://istack-commons.dev.java.net/source/browse/istack-commons/istack-commons</url>
+    <tag>istack-commons-1_0</tag>
   </scm>
 
   <distributionManagement>
