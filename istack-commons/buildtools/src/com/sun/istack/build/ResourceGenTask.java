@@ -150,9 +150,9 @@ public class ResourceGenTask extends Task {
             JClass l_class;
             JClass lable_class;
             try {
-                lmf_class = cm.parseType("com.sun.xml.ws.util.localization.LocalizableMessageFactory").boxify();
-                l_class = cm.parseType("com.sun.xml.ws.util.localization.Localizer").boxify();
-                lable_class = cm.parseType("com.sun.xml.ws.util.localization.Localizable").boxify();
+                lmf_class = cm.parseType("com.sun.istack.localization.LocalizableMessageFactory").boxify();
+                l_class = cm.parseType("com.sun.istack.localization.Localizer").boxify();
+                lable_class = cm.parseType("com.sun.istack.localization.Localizable").boxify();
             } catch (ClassNotFoundException e) {
                 throw new BuildException(e); // impossible -- but why parseType throwing ClassNotFoundExceptoin!?
             }
