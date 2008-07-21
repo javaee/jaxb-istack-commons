@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <parent>
+    <artifactId>istack-commons</artifactId>
+    <groupId>com.sun.istack</groupId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.sun.istack</groupId>
+  <artifactId>maven-istack-commons-plugin</artifactId>
+  <packaging>maven-plugin</packaging>
+  <name>istack-commons Maven Mojo</name>
+  <version>0.1-SNAPSHOT</version>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+      <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>file-management</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.codemodel</groupId>
+      <artifactId>codemodel</artifactId>
+      <version>2.0</version>
+    </dependency>
+  </dependencies>
+
+  <distributionManagement>
+      <repository>
+        <uniqueVersion>false</uniqueVersion>
+        <id>java.net-m2-repository</id>
+        <url>java-net:/maven2-repository/trunk/www/repository/</url>
+      </repository>
+  </distributionManagement>
+
+</project>
