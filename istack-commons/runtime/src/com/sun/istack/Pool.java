@@ -1,6 +1,7 @@
 package com.sun.istack;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.lang.ref.WeakReference;
 
 /**
  * Pool of reusable objects that are indistinguishable from each other,
@@ -9,6 +10,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author Kohsuke Kawaguchi
  */
 public interface Pool<T> {
+
     /**
      * Gets a new object from the pool.
      *
@@ -22,7 +24,6 @@ public interface Pool<T> {
      */
     void recycle(@NotNull T t);
 
-
     /**
      * Default implementation that uses {@link ConcurrentLinkedQueue}
      * as the data store.
@@ -32,6 +33,9 @@ public interface Pool<T> {
      * Don't rely on the fact that this class extends from {@link ConcurrentLinkedQueue}.
      */
     public abstract class Impl<T> extends ConcurrentLinkedQueue<T> implements Pool<T> {
+
+        private volatile WeakReference<ConcurrentLinkedQueue<T>> queue;
+
         /**
          * Gets a new object from the pool.
          *
@@ -42,9 +46,10 @@ public interface Pool<T> {
          *      always non-null.
          */
         public final @NotNull T take() {
-            T t = super.poll();
-            if(t==null)
+            T t = getQueue().poll();
+            if(t==null) {
                 return create();
+            }
             return t;
         }
 
@@ -52,7 +57,22 @@ public interface Pool<T> {
          * Returns an object back to the pool.
          */
         public final void recycle(T t) {
-            super.offer(t);
+            getQueue().offer(t);
+        }
+
+        private ConcurrentLinkedQueue<T> getQueue() {
+            WeakReference<ConcurrentLinkedQueue<T>> q = queue;
+            if (q != null) {
+                ConcurrentLinkedQueue<T> d = q.get();
+                if (d != null) {
+                    return d;
+                }
+            }
+            // overwrite the queue
+            ConcurrentLinkedQueue<T> d = new ConcurrentLinkedQueue<T>();
+            queue = new WeakReference<ConcurrentLinkedQueue<T>>(d);
+
+            return d;
         }
 
         /**
