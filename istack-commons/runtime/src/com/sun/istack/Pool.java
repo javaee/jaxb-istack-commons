@@ -32,7 +32,7 @@ public interface Pool<T> {
      * <p>
      * Don't rely on the fact that this class extends from {@link ConcurrentLinkedQueue}.
      */
-    public abstract class Impl<T> extends ConcurrentLinkedQueue<T> implements Pool<T> {
+    public abstract class Impl<T> implements Pool<T> {
 
         private volatile WeakReference<ConcurrentLinkedQueue<T>> queue;
 
