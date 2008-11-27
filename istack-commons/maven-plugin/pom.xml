@@ -34,6 +34,16 @@
       <artifactId>codemodel</artifactId>
       <version>2.0</version>
     </dependency>
+    <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-archiver</artifactId>
+        <version>1.0-alpha-9</version>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-io</artifactId>
+        <version>1.0-alpha-1</version>
+    </dependency>
   </dependencies>
 
   <distributionManagement>
@@ -44,4 +54,11 @@
       </repository>
   </distributionManagement>
 
+  <repositories>
+      <repository>
+          <id>java.net maven 2 repository</id>
+          <url>http://download.java.net/maven/2</url>
+      </repository>
+  </repositories>
+  
 </project>
