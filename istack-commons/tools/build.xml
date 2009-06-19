@@ -3,7 +3,7 @@
   <property name="name" value="istack-commons-tools" />
   <import file="../build-common.xml"/>
 
-  <target name="compile">
+  <target name="compile" unless="from.source">
     <antcall target="build-common.compile" />
     <javac srcdir="src14"
       destdir="build/classes"

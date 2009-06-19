@@ -12,7 +12,7 @@
   <property name="build.id" value="${now}(${user.name})" />
   
   
-  <target name="compile">
+  <target name="compile" unless="from.source">
     <mkdir dir="build/classes"/>
     <javac srcdir="src" 
       source="1.5"
@@ -25,7 +25,15 @@
     </javac>
   </target>
 
-  <target name="jar" depends="compile">
+  <target name="compile-from-source" if="from.source">
+    <mkdir dir="build/classes"/>
+    <javac srcdir="src"
+      destdir="build/classes"
+      debug="on">
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile, compile-from-source">
     <jar jarfile="build/${name}.jar">
       <manifest>
         <attribute name="Build-Id" value="${build.id}" />

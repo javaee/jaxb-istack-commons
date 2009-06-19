@@ -6,8 +6,16 @@
     <forEach target="clean" />
   </target>
   
-  <target name="dist">
+  <target name="dist" depends="dist-from-jar, dist-from-source"/>
+
+  <target name="dist-from-jar" unless="from.source">
     <forEach target="dist" />
+  </target>
+
+  <target name="dist-from-source" if="from.source">
+      <subant target="dist">
+        <fileset dir="." includes="runtime/build.xml, tools/build.xml"/>
+      </subant>
   </target>
 
   <target name="javadoc">
