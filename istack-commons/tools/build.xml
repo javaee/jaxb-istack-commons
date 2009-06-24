@@ -16,6 +16,19 @@
     </javac>
   </target>
 
+  <target name="compile-from-source" if="from.source">
+    <antcall target="build-common.compile-from-source" />
+    <javac srcdir="src14"
+      destdir="build/classes"
+      source="1.4"
+      target="1.4"
+      debug="on">
+      <classpath>
+        <fileset dir="." includes="lib/*.jar" />
+      </classpath>
+    </javac>
+  </target>
+
   <target name="src-zip">
     <jar jarfile="build/${name}-src.zip">
       <fileset dir="src" />

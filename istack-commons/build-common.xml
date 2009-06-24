@@ -4,17 +4,17 @@
 -->
 <project name="build-common">
   <property file="project.properties" />
-  
+
   <!-- default build id -->
   <tstamp>
     <format property="now" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
   </tstamp>
   <property name="build.id" value="${now}(${user.name})" />
-  
-  
+
+
   <target name="compile" unless="from.source">
     <mkdir dir="build/classes"/>
-    <javac srcdir="src" 
+    <javac srcdir="src"
       source="1.5"
       target="1.5"
       destdir="build/classes"
@@ -29,6 +29,8 @@
     <mkdir dir="build/classes"/>
     <javac srcdir="src"
       destdir="build/classes"
+      source="1.5"
+      target="1.5"
       debug="on">
     </javac>
   </target>
@@ -47,10 +49,10 @@
       <fileset dir="src" />
     </jar>
   </target>
-  
+
   <target name="clean">
     <delete dir="build" />
   </target>
-  
+
   <target name="dist" depends="jar, src-zip" />
 </project>
