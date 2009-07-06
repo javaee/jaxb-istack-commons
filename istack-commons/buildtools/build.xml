@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="istack-commons-buildtools" basedir="." default="dist" xmlns:artifact="urn:maven-artifact-ant">
     <import file="../build-common.xml"/>
-    <property name="maven.ant.file" value="maven-ant-tasks-2.0.9.jar"/>
+    <property name="maven.ant.file" value="maven-ant-tasks-2.0.10.jar"/>
     <property name="src" value="src"/>
     <property name="lib.dir" value="lib"/>
     <property name="build.dir" value="build"/>
