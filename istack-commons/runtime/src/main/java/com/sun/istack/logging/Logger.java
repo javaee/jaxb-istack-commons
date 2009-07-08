@@ -36,46 +36,101 @@
 
 package com.sun.istack.logging;
 
+import com.sun.istack.NotNull;
+
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
-import static com.sun.istack.reflection.CallerStack.getCallerMethodName;
-
 /**
- * This is a helper class that provides some convenience methods wrapped around the
- * standard {@link java.util.logging.Logger} interface. Use like this:
- * <pre>
- * public final class DomainLogger extends Logger {
+ * This is a helper class that provides some conveniece methods wrapped around the
+ * standard {@link java.util.logging.Logger} interface.
  *
- *     private DomainLogger(final String loggerName, final String className) {
- *         super(loggerName, className);
- *     }
+ * The class also makes sure that logger names of each Metro subsystem are consistent
+ * with each other.
  *
- *     public static DomainLogger getLogger(final Class componentClass) {
- *         return new PolicyLogger("loggerName", componentClass.getName());
- *     }
- * }
- * </pre>
- *
- * @author Marek Potociar
+ * @author Marek Potociar <marek.potociar at sun.com>
  * @author Fabian Ritzmann
  */
-public abstract class Logger {
+public class Logger {
 
-    protected static final Level METHOD_CALL_LEVEL_VALUE = Level.FINEST;
-
-    protected final String componentClassName;
-    protected final java.util.logging.Logger logger;
+    private static final String WS_LOGGING_SUBSYSTEM_NAME_ROOT = "javax.enterprise.resource.webservices";
+    private static final String ROOT_WS_PACKAGE = "com.sun.xml.ws.";
+    //
+    private static final Level METHOD_CALL_LEVEL_VALUE = Level.FINEST;
+    //
+    private final String componentClassName;
+    private final java.util.logging.Logger logger;
 
     /**
-     * Create a new Logger instance. Meant to be called from derived classes.
-     *
-     * @param loggerName The dot-separated package name of a subsystem,
-     *   e.g. "javax.enterprise.resource.webservices.jaxws.wspolicy.ClassName"
-     * @param className The name of a class within the subsystem
+     * Prevents creation of a new instance of this Logger unless used by a subclass.
      */
-    protected Logger(final String loggerName, final String className) {
-        this.componentClassName = "[" + className + "] ";
-        this.logger = java.util.logging.Logger.getLogger(loggerName);
+    protected Logger(final String systemLoggerName, final String componentName) {
+        this.componentClassName = "[" + componentName + "] ";
+        this.logger = java.util.logging.Logger.getLogger(systemLoggerName);
+    }
+
+    /**
+     * <p>
+     * The factory method returns preconfigured Logger wrapper for the class. Method calls
+     * {@link #getSystemLoggerName(java.lang.Class)} to generate default logger name.
+     * </p>
+     * <p>
+     * Since there is no caching implemented, it is advised that the method is called only once
+     * per a class in order to initialize a final static logger variable, which is then used
+     * through the class to perform actual logging tasks.
+     * </p>
+     *
+     * @param componentClass class of the component that will use the logger instance. Must not be {@code null}.
+     * @return logger instance preconfigured for use with the component
+     * @throws NullPointerException if the componentClass parameter is {@code null}.
+     */
+    public static @NotNull Logger getLogger(final @NotNull Class<?> componentClass) {
+        return new Logger(getSystemLoggerName(componentClass), componentClass.getName());
+    }
+
+    /**
+     * The factory method returns preconfigured Logger wrapper for the class. Since there is no caching implemented,
+     * it is advised that the method is called only once per a class in order to initialize a final static logger variable,
+     * which is then used through the class to perform actual logging tasks.
+     *
+     * This method should be only used in a special cases when overriding of a default logger name derived from the
+     * package of the component class is needed. For all common use cases please use {@link #getLogger(java.lang.Class)}
+     * method.
+     *
+     * @param customLoggerName custom name of the logger.
+     * @param componentClass class of the component that will use the logger instance. Must not be {@code null}.
+     * @return logger instance preconfigured for use with the component
+     * @throws NullPointerException if the componentClass parameter is {@code null}.
+     *
+     * @see #getLogger(java.lang.Class)
+     */
+    public static @NotNull Logger getLogger(final @NotNull String customLoggerName, final @NotNull Class<?> componentClass) {
+        return new Logger(customLoggerName, componentClass.getName());
+    }
+
+    /**
+     * Calculates the subsystem suffix based on the package of the component class
+     * @param componentClass class of the component that will use the logger instance. Must not be {@code null}.
+     * @return system logger name for the given {@code componentClass} instance
+     */
+    static final String getSystemLoggerName(@NotNull Class<?> componentClass) {
+        StringBuilder sb = new StringBuilder(componentClass.getPackage().getName());
+        final int lastIndexOfWsPackage = sb.lastIndexOf(ROOT_WS_PACKAGE);
+        if (lastIndexOfWsPackage > -1) {
+            sb.replace(0, lastIndexOfWsPackage + ROOT_WS_PACKAGE.length(), "");
+
+            StringTokenizer st = new StringTokenizer(sb.toString(), ".");
+            sb = new StringBuilder(WS_LOGGING_SUBSYSTEM_NAME_ROOT).append(".");
+            if (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                if ("api".equals(token)) {
+                    token = st.nextToken();
+                }
+                sb.append(token);
+            }
+        }
+
+        return sb.toString();
     }
 
     public void log(final Level level, final String message) {
@@ -240,7 +295,6 @@ public abstract class Logger {
      * {@code exception} original cause is initialized with instance referenced
      * by {@code cause} parameter.
      *
-     * @param <T> the type of the exception
      * @param exception exception whose message should be logged. Must not be
      *        {@code null}.
      * @param cause initial cause of the exception that should be logged as well
@@ -272,7 +326,6 @@ public abstract class Logger {
      * {@link #logSevereException(Throwable, Throwable)}
      * method version but you might still want to log the original cause as well.
      *
-     * @param <T> the type of the exception
      * @param exception exception whose message should be logged. Must not be
      *        {@code null}.
      * @param logCause deterimnes whether initial cause of the exception should
@@ -294,11 +347,6 @@ public abstract class Logger {
 
     /**
      * Same as {@link #logSevereException(Throwable, boolean) logSevereException(exception, true)}.
-     * @param <T> the type of the exception
-     * @param exception exception whose message should be logged. Must not be
-     *        {@code null}.
-     * @return the same exception instance that was passed in as the {@code exception}
-     *         parameter.
      */
     public <T extends Throwable> T logSevereException(final T exception) {
         if (this.logger.isLoggable(Level.SEVERE)) {
@@ -320,7 +368,6 @@ public abstract class Logger {
      * {@code exception} original cause is initialized with instance referenced
      * by {@code cause} parameter.
      *
-     * @param <T> the type of the exception
      * @param exception exception whose message should be logged. Must not be
      *        {@code null}.
      * @param cause initial cause of the exception that should be logged as well
@@ -353,7 +400,6 @@ public abstract class Logger {
      * {@link #logException(Throwable, Throwable, Level) logException(exception, cause, level)}
      * method version but you might still want to log the original cause as well.
      *
-     * @param <T> the type of the exception
      * @param exception exception whose message should be logged. Must not be
      *        {@code null}.
      * @param logCause deterimnes whether initial cause of the exception should
@@ -377,12 +423,6 @@ public abstract class Logger {
     /**
      * Same as {@link #logException(Throwable, Throwable, Level)
      * logException(exception, true, level)}.
-     * @param <T> the type of the exception
-     * @param exception exception whose message should be logged. Must not be
-     *        {@code null}.
-     * @param level loging level which should be used for logging
-     * @return the same exception instance that was passed in as the {@code exception}
-     *         parameter.
      */
     public <T extends Throwable> T logException(final T exception, final Level level) {
         if (this.logger.isLoggable(level)) {
@@ -395,4 +435,36 @@ public abstract class Logger {
 
         return exception;
     }
+
+    /**
+     * Function returns the name of the caller method for the method executing this
+     * function.
+     *
+     * @return caller method name from the call stack of the current {@link Thread}.
+     */
+    private static String getCallerMethodName() {
+        return getStackMethodName(5);
+    }
+
+    /**
+     * Method returns the name of the method that is on the {@code methodIndexInStack}
+     * position in the call stack of the current {@link Thread}.
+     *
+     * @param methodIndexInStack index to the call stack to get the method name for.
+     * @return the name of the method that is on the {@code methodIndexInStack}
+     *         position in the call stack of the current {@link Thread}.
+     */
+    private static String getStackMethodName(final int methodIndexInStack) {
+        final String methodName;
+
+        final StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        if (stack.length > methodIndexInStack + 1) {
+            methodName = stack[methodIndexInStack].getMethodName();
+        } else {
+            methodName = "UNKNOWN METHOD";
+        }
+
+        return methodName;
+    }
+
 }

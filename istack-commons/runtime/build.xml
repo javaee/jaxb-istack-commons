@@ -1,5 +1,56 @@
 <?xml version="1.0"?>
 <project name="istack-commons-runtime" basedir="." default="dist">
   <property name="name" value="istack-commons-runtime" />
-  <import file="../build-common.xml"/>
+  <property file="../project.properties" />
+
+  <!-- default build id -->
+  <tstamp>
+    <format property="now" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
+  </tstamp>
+  <property name="build.id" value="${now}(${user.name})" />
+
+
+  <target name="compile" unless="from.source">
+    <mkdir dir="build/classes"/>
+    <javac srcdir="src/main/java"
+      source="1.5"
+      target="1.5"
+      destdir="build/classes"
+      debug="on">
+      <classpath>
+        <fileset dir="." includes="lib/*.jar" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="compile-from-source" if="from.source">
+    <mkdir dir="build/classes"/>
+    <javac srcdir="src/main/java"
+      destdir="build/classes"
+      source="1.5"
+      target="1.5"
+      debug="on">
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile, compile-from-source">
+    <jar jarfile="build/${name}.jar">
+      <manifest>
+        <attribute name="Build-Id" value="${build.id}" />
+      </manifest>
+      <fileset dir="build/classes" />
+    </jar>
+  </target>
+
+  <target name="src-zip">
+    <jar jarfile="build/${name}-src.zip">
+      <fileset dir="src" />
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="build" />
+  </target>
+
+  <target name="dist" depends="jar, src-zip" />
 </project>

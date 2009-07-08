@@ -34,44 +34,44 @@
  * holder.
  */
 
-package com.sun.istack.reflection;
+package com.sun.istack.logging;
+
+import junit.framework.TestCase;
 
 /**
- * Utility methods that operate on the current call stack.
  *
- * @author Marek Potociar
- * @author Fabian Ritzmann
+ * @author Marek Potociar <marek.potociar at sun.com>
  */
-public class CallerStack {
+public class LoggerTest extends TestCase {
+    
+    public LoggerTest(String testName) {
+        super(testName);
+    }
 
-    /**
-     * Method returns the name of the method that is on the {@code methodIndexInStack}
-     * position in the call stack of the current {@link Thread}.
-     *
-     * @param methodIndexInStack index to the call stack to get the method name for.
-     * @return the name of the method that is on the {@code methodIndexInStack}
-     *         position in the call stack of the current {@link Thread}.
-     */
-    public static String getStackMethodName(final int methodIndexInStack) {
-        final String methodName;
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
 
-        final StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-        if (stack.length > methodIndexInStack + 1) {
-            methodName = stack[methodIndexInStack].getMethodName();
-        } else {
-            methodName = "UNKNOWN METHOD";
-        }
-
-        return methodName;
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
     }
 
     /**
-     * Function returns the name of the caller method for the method executing this
-     * function.
-     *
-     * @return caller method name from the call stack of the current {@link Thread}.
+     * Test of getLogger method, of class Logger.
      */
-    public static String getCallerMethodName() {
-        return getStackMethodName(5);
+    public void testGetLogger() {
+        Logger result = Logger.getLogger(LoggerTest.class);
+        assertNotNull(result);
     }
+
+    /**
+     * Test of getSystemLoggerName method, of class Logger.
+     */
+    public void testGetSubsystemName() {
+        String result = Logger.getSystemLoggerName(LoggerTest.class);
+        assertEquals("com.sun.istack.logging", result);
+    }
+
 }
