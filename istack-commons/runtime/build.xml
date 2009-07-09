@@ -44,7 +44,7 @@
 
   <target name="src-zip">
     <jar jarfile="build/${name}-src.zip">
-      <fileset dir="src" />
+      <fileset dir="src/main/java" />
     </jar>
   </target>
 
