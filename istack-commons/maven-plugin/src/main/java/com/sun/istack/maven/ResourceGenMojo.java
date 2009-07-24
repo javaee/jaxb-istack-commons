@@ -78,6 +78,13 @@ public class ResourceGenMojo extends AbstractMojo {
      */
     private FileSet resources;
 
+    /**
+     * package to be used for the localization utility classes
+     * @parameter
+     * @required
+     */
+    private String localizationUtilitiesPkgName;
+
     
     public void execute() throws MojoExecutionException {
 
@@ -88,6 +95,10 @@ public class ResourceGenMojo extends AbstractMojo {
             throw new MojoExecutionException("No destdir attribute is specified");
         }
         
+        if(localizationUtilitiesPkgName == null) {
+            localizationUtilitiesPkgName = "com.sun.istack.localization";
+        }
+
         if (!destDir.exists()) {
             destDir.mkdirs();
         }
@@ -162,9 +173,9 @@ public class ResourceGenMojo extends AbstractMojo {
             JClass l_class;
             JClass lable_class;
             try {
-                lmf_class = cm.parseType("com.sun.istack.localization.LocalizableMessageFactory").boxify();
-                l_class = cm.parseType("com.sun.istack.localization.Localizer").boxify();
-                lable_class = cm.parseType("com.sun.istack.localization.Localizable").boxify();
+                lmf_class = cm.parseType(addLocalizationUtilityPackageName("LocalizableMessageFactory")).boxify();
+                l_class = cm.parseType(addLocalizationUtilityPackageName("Localizer")).boxify();
+                lable_class = cm.parseType(addLocalizationUtilityPackageName("Localizable")).boxify();
             } catch (ClassNotFoundException e) {
                 throw new MojoExecutionException(e.getMessage(), e); // impossible -- but why parseType throwing ClassNotFoundExceptoin!?
             }
@@ -215,6 +226,11 @@ public class ResourceGenMojo extends AbstractMojo {
             throw new MojoExecutionException("Failed to generate code",e);
         }
     }
+
+    private String addLocalizationUtilityPackageName(final String className) {
+        return String.format("%s.%s", localizationUtilitiesPkgName, className);
+    }
+
     private int countArgs(String value) {
         List<String> x = new ArrayList<String>();
 
