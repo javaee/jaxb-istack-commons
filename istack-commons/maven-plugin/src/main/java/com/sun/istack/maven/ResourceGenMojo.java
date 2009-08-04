@@ -80,8 +80,7 @@ public class ResourceGenMojo extends AbstractMojo {
 
     /**
      * package to be used for the localization utility classes
-     * @parameter
-     * @required
+     * @parameter default-value="com.sun.istack.localization"
      */
     private String localizationUtilitiesPkgName;
 
