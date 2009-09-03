@@ -10,7 +10,7 @@
   <artifactId>maven-istack-commons-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>istack-commons Maven Mojo</name>
-  <version>0.1</version>
+  <version>0.2-SNAPSHOT</version>
   <url>http://maven.apache.org</url>
   <dependencies>
       <dependency>
