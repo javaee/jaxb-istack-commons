@@ -53,7 +53,7 @@ import java.util.logging.Level;
  */
 public class Logger {
 
-    private static final String WS_LOGGING_SUBSYSTEM_NAME_ROOT = "javax.enterprise.resource.webservices";
+    private static final String WS_LOGGING_SUBSYSTEM_NAME_ROOT = "com.sun.metro";
     private static final String ROOT_WS_PACKAGE = "com.sun.xml.ws.";
     //
     private static final Level METHOD_CALL_LEVEL_VALUE = Level.FINEST;
