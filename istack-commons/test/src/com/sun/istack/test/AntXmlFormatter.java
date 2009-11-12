@@ -2,13 +2,13 @@ package com.sun.istack.test;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestListener;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitTest;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitVersionHelper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -19,7 +19,7 @@ import java.io.PrintStream;
  *
  * @author Kohsuke Kawaguchi
  */
-public class AntXmlFormatter implements TestListener {
+public class AntXmlFormatter implements TestListener,Closeable {
     private JUnitResultFormatter antf;
     private JUnitTest antTest; // Ant wants this
     private final Class<? extends JUnitResultFormatter> formatter;
