@@ -3,10 +3,12 @@
   <parent>
     <groupId>com.sun.istack</groupId>
     <artifactId>istack-commons</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>2.2</version>
   </parent>
   <artifactId>istack-commons-runtime</artifactId>
   
+  <name>istack common utility code runtime</name>
+
   <dependencies>
     <dependency>
       <groupId>stax</groupId>
