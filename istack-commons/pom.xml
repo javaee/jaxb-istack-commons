@@ -44,26 +44,27 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.sun.istack</groupId>
   <artifactId>istack-commons</artifactId>
-  <version>2.3-SNAPSHOT</version>
+  <version>2.3</version>
   <packaging>pom</packaging>
 
   <name>istack common utility code</name>
   
   <modules>
+    <module>buildtools</module>
     <module>runtime</module>
     <module>test</module>
     <module>tools</module>
+    <module>maven-plugin</module>
   </modules>
   
   <scm>
-    <connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:istack-commons/istack-commons</connection>
-    <developerConnection>scm:cvs:pserver:kohsuke@cvs.dev.java.net:/cvs:istack-commons/istack-commons</developerConnection>
-    <url>https://istack-commons.dev.java.net/source/browse/istack-commons/istack-commons</url>
+    <developerConnection>scm:svn:https://svn.java.net/svn/istack-commons~svn/tags/istack-commons-2.3</developerConnection>
+    <connection>scm:svn:https://svn.java.net/svn/istack-commons~svn/tags/istack-commons-2.3</connection>
+    <url>http://java.net/projects/istack-commons/sources/svn/show/tags/istack-commons-2.3</url>
   </scm>
 
   <distributionManagement>
     <repository>
-      <uniqueVersion>false</uniqueVersion>
       <id>java.net-maven2-repository</id>
       <url>java-net:/maven2-repository/trunk/repository/</url>
     </repository>
