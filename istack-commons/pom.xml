@@ -63,13 +63,6 @@
     <url>http://java.net/projects/istack-commons/sources/svn/show/trunk/istack-commons</url>
   </scm>
 
-  <distributionManagement>
-    <repository>
-      <id>java.net-maven2-repository</id>
-      <url>java-net:/maven2-repository/trunk/repository/</url>
-    </repository>
-  </distributionManagement>
-
   <build>
     <plugins>
       <plugin>
