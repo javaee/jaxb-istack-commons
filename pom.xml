@@ -63,13 +63,6 @@
     <url>http://java.net/projects/istack-commons/sources/svn/show/tags/istack-commons-2.3</url>
   </scm>
 
-  <distributionManagement>
-    <repository>
-      <id>java.net-maven2-repository</id>
-      <url>java-net:/maven2-repository/trunk/repository/</url>
-    </repository>
-  </distributionManagement>
-
   <build>
     <plugins>
       <plugin>
@@ -106,11 +99,28 @@
     </dependency>
   </dependencies>
 
-  <repositories>
-      <repository>
-          <id>java.net.m2</id>
-          <url>http://download.java.net/maven/2</url>
-      </repository>
-  </repositories>
+    <repositories>
+        <repository>
+            <id>m2.dev.java.net</id>
+            <url>http://download.java.net/maven/2</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven</name>
+            <url>http://download.java.net/maven/2/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>java.net-maven2-repository</id>
+            <url>svn:https://svn.java.net/svn/maven2-repository~svn/trunk/repository</url> 
+        </repository>
+    </distributionManagement>
 
 </project>
