@@ -86,20 +86,5 @@
         <version>1.0-alpha-1</version>
     </dependency>
   </dependencies>
-
-  <distributionManagement>
-      <repository>
-        <uniqueVersion>false</uniqueVersion>
-        <id>java.net-m2-repository</id>
-        <url>java-net:/maven2-repository/trunk/repository/</url>
-      </repository>
-  </distributionManagement>
-
-  <repositories>
-      <repository>
-          <id>java.net maven 2 repository</id>
-          <url>http://download.java.net/maven/2</url>
-      </repository>
-  </repositories>
   
 </project>
