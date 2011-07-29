@@ -42,6 +42,13 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+      <groupId>net.java</groupId>
+      <artifactId>jvnet-parent</artifactId>
+      <version>1</version>
+  </parent>
+
   <groupId>com.sun.istack</groupId>
   <artifactId>istack-commons</artifactId>
   <version>2.4-SNAPSHOT</version>
@@ -81,13 +88,6 @@
         </configuration>
       </plugin>
     </plugins>
-    <extensions>
-      <extension>
-        <groupId>org.jvnet.wagon-svn</groupId>
-        <artifactId>wagon-svn</artifactId>
-        <version>1.6</version>
-      </extension>
-    </extensions>
   </build>
   
   <dependencies>
@@ -98,29 +98,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-    <repositories>
-        <repository>
-            <id>m2.dev.java.net</id>
-            <url>http://download.java.net/maven/2</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Java.net Repository for Maven</name>
-            <url>http://download.java.net/maven/2/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>java.net-maven2-repository</id>
-            <url>svn:https://svn.java.net/svn/maven2-repository~svn/trunk/repository</url> 
-        </repository>
-    </distributionManagement>
 
 </project>
