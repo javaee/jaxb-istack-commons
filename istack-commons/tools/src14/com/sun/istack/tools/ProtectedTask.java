@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,12 +40,16 @@
 
 package com.sun.istack.tools;
 
+import java.io.Closeable;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DynamicConfigurator;
 import org.apache.tools.ant.IntrospectionHelper;
 import org.apache.tools.ant.Task;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,6 +97,11 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
 
             Thread.currentThread().setContextClassLoader(cl);
             t.execute();
+            
+            driver = null;
+            t.setTaskName(null);
+            t.setProject(null);
+            t = null;
         } catch (UnsupportedClassVersionError e) {
             throw new BuildException("Requires JDK 5.0 or later. Please download it from http://java.sun.com/j2se/1.5/");
         } catch (ClassNotFoundException e) {
@@ -104,7 +113,44 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
         } catch (IOException e) {
             throw new BuildException(e);
         } finally {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(ccl);
+            
+            //close/cleanup all classloaders but the one which loaded this class
+            while (cl != null && !ccl.equals(cl)) {
+                if (cl instanceof Closeable) {
+                    //JDK7+, ParallelWorldClassLoader, Ant (AntClassLoader5)
+                    try {
+                        ((Closeable) cl).close();
+                    } catch (IOException ex) {
+                        throw new BuildException(ex);
+                    }
+                } else {
+                    if (cl instanceof URLClassLoader) {
+                        //JDK6 - API jars are loaded by instance of URLClassLoader
+                        //so use proprietary API to release holded resources
+                        try {
+                            Class clUtil = ccl.loadClass("sun.misc.ClassLoaderUtil");
+                            Method release = clUtil.getDeclaredMethod("releaseLoader", URLClassLoader.class);
+                            release.invoke(null, cl);
+                        } catch (ClassNotFoundException ex) {
+                            //not Sun JDK 6, ignore
+                        } catch (IllegalAccessException ex) {
+                            throw new BuildException(ex);
+                        } catch (IllegalArgumentException ex) {
+                            throw new BuildException(ex);
+                        } catch (InvocationTargetException ex) {
+                            throw new BuildException(ex);
+                        } catch (NoSuchMethodException ex) {
+                            throw new BuildException(ex);
+                        } catch (SecurityException ex) {
+                            throw new BuildException(ex);
+                        }
+                    }
+                }
+                cl = cl.getParent();
+            }
+            cl = null;
         }
     }
 

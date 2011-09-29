@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,10 +42,21 @@ package com.sun.istack.tools;
 
 import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Load classes/resources from a side folder, so that
@@ -89,24 +100,40 @@ import java.util.Enumeration;
  *
  * @author Kohsuke Kawaguchi
  */
-public class ParallelWorldClassLoader extends ClassLoader {
+public class ParallelWorldClassLoader extends ClassLoader implements Closeable {
 
     /**
      * Strings like "prefix/", "abc/", or "" to indicate
      * classes should be loaded normally.
      */
     private final String prefix;
+    private final Set<JarFile> jars;
 
     public ParallelWorldClassLoader(ClassLoader parent,String prefix) {
         super(parent);
         this.prefix = prefix;
+        jars = Collections.synchronizedSet(new HashSet<JarFile>());
     }
 
     protected Class findClass(String name) throws ClassNotFoundException {
         StringBuffer sb = new StringBuffer(name.length()+prefix.length()+6);
         sb.append(prefix).append(name.replace('.','/')).append(".class");
 
-        InputStream is = getParent().getResourceAsStream(sb.toString());
+        URL u  = getParent().getResource(sb.toString());
+        if (u == null) {
+            throw new ClassNotFoundException(name);
+        }
+
+        InputStream is = null;
+        URLConnection con = null;
+
+        try {
+            con = u.openConnection();
+            is = con.getInputStream();
+        } catch (IOException ioe) {
+            throw new ClassNotFoundException(name);
+        }
+        
         if (is==null)
             throw new ClassNotFoundException(name);
 
@@ -130,17 +157,65 @@ public class ParallelWorldClassLoader extends ClassLoader {
             return defineClass(name,buf,0,buf.length);
         } catch (IOException e) {
             throw new ClassNotFoundException(name,e);
+        } finally {
+            try {
+                if (con != null && con instanceof JarURLConnection) {
+                    jars.add(((JarURLConnection) con).getJarFile());
+                }
+            } catch (IOException ioe) {
+                //ignore
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ioe) {
+                    //ignore
+                }
+            }
         }
     }
 
+    @Override
     protected URL findResource(String name) {
-        return getParent().getResource(prefix+name);
+        URL u = getParent().getResource(prefix + name);
+        if (u != null) {
+            try {
+                jars.add(new JarFile(new File(toJarUrl(u).toURI())));
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(ParallelWorldClassLoader.class.getName()).log(Level.WARNING, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(ParallelWorldClassLoader.class.getName()).log(Level.WARNING, null, ex);
+            } catch (ClassNotFoundException ex) {
+                //ignore - not a jar
+            }
+        }
+        return u;
     }
 
+    @Override
     protected Enumeration<URL> findResources(String name) throws IOException {
-        return getParent().getResources(    prefix+name);
+        Enumeration<URL> en = getParent().getResources(prefix + name);
+        while (en.hasMoreElements()) {
+            try {
+                jars.add(new JarFile(new File(toJarUrl(en.nextElement()).toURI())));
+            } catch (URISyntaxException ex) {
+                //should not happen
+                Logger.getLogger(ParallelWorldClassLoader.class.getName()).log(Level.WARNING, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(ParallelWorldClassLoader.class.getName()).log(Level.WARNING, null, ex);
+            } catch (ClassNotFoundException ex) {
+                //ignore - not a jar
+            }
+        }
+        return en;
     }
 
+    public synchronized void close() throws IOException {
+        for (JarFile jar : jars) {
+            jar.close();
+        }
+    }
+    
     /**
      * Given the URL inside jar, returns the URL to the jar itself.
      */
