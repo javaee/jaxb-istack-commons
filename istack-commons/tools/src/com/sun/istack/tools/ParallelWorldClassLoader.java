@@ -117,8 +117,6 @@ public class ParallelWorldClassLoader extends ClassLoader implements Closeable {
 
     protected Class findClass(String name) throws ClassNotFoundException {
         
-        System.out.println("PARALLEL WORLD: " + name);
-        
         StringBuffer sb = new StringBuffer(name.length()+prefix.length()+6);
         sb.append(prefix).append(name.replace('.','/')).append(".class");
 
