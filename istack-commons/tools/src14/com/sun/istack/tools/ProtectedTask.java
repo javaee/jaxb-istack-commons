@@ -85,7 +85,7 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
         // then use a MaskingClassLoader
         // so that the XJC2 classes in the parent class loader
         //  won't interfere with loading XJC1 classes in a child class loader
-        ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+        ClassLoader ccl = SecureLoader.getContextClassLoader();
         try {
             ClassLoader cl = createClassLoader();
             Class driver = cl.loadClass(getCoreClassName());
@@ -95,7 +95,7 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
             t.setTaskName(getTaskName());
             root.configure(t);
 
-            Thread.currentThread().setContextClassLoader(cl);
+            SecureLoader.setContextClassLoader(cl);
             t.execute();
             
             driver = null;
@@ -114,7 +114,7 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
             throw new BuildException(e);
         } finally {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            Thread.currentThread().setContextClassLoader(ccl);
+            SecureLoader.setContextClassLoader(ccl);
             
             //close/cleanup all classloaders but the one which loaded this class
             while (cl != null && !ccl.equals(cl)) {

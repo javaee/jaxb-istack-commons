@@ -54,9 +54,13 @@ import com.sun.mirror.type.PrimitiveType;
  *
  * <p>
  * This visitor takes a parameter 'P' so that visitor code can be made stateless.
- *
+ * 
+ * @deprecated
+ * 
  * @author Kohsuke Kawaguchi
+ * 
  */
+@Deprecated
 public abstract class APTTypeVisitor<T,P> {
     public final T apply(TypeMirror type, P param) {
         if( type instanceof ArrayType)

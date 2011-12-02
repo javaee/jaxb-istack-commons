@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -37,43 +37,53 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-
 package com.sun.istack.test;
 
-import java.net.URL;
-
 /**
- * Finds out where a class file is loaded from.
- *
- * @author
- *     Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
+ * Class defined for safe calls of getClassLoader methods of any kind (context/system/class
+ * classloader. This MUST be package private and defined in every package which 
+ * uses such invocations.
+ * @author snajper
  */
-public class Which {
+class SecureLoader {
 
-    public static String which( Class clazz ) {
-        return which( clazz.getName(), SecureLoader.getClassClassLoader(clazz));
-    }
-
-    /**
-     * Search the specified classloader for the given classname.
-     *
-     * @param classname the fully qualified name of the class to search for
-     * @param loader the classloader to search
-     * @return the source location of the resource, or null if it wasn't found
-     */
-    public static String which(String classname, ClassLoader loader) {
-
-        String classnameAsResource = classname.replace('.', '/') + ".class";
-
-        if(loader == null) {
-            loader = SecureLoader.getSystemClassLoader();
-        }
-
-        URL it = loader.getResource(classnameAsResource);
-        if (it != null) {
-            return it.toString();
+    static ClassLoader getContextClassLoader() {
+        if (System.getSecurityManager() == null) {
+            return Thread.currentThread().getContextClassLoader();
         } else {
-            return null;
+            return (ClassLoader) java.security.AccessController.doPrivileged(
+                    new java.security.PrivilegedAction() {
+                        public java.lang.Object run() {
+                            return Thread.currentThread().getContextClassLoader();
+                        }
+                    });
         }
     }
+
+    static ClassLoader getClassClassLoader(final Class c) {
+        if (System.getSecurityManager() == null) {
+            return c.getClassLoader();
+        } else {
+            return (ClassLoader) java.security.AccessController.doPrivileged(
+                    new java.security.PrivilegedAction() {
+                        public java.lang.Object run() {
+                            return c.getClassLoader();
+                        }
+                    });
+        }
+    }
+
+    static ClassLoader getSystemClassLoader() {
+        if (System.getSecurityManager() == null) {
+            return ClassLoader.getSystemClassLoader();
+        } else {
+            return (ClassLoader) java.security.AccessController.doPrivileged(
+                    new java.security.PrivilegedAction() {
+                        public java.lang.Object run() {
+                            return ClassLoader.getSystemClassLoader();
+                        }
+                    });
+        }
+    }
+    
 }
