@@ -53,6 +53,9 @@ public class Soimp extends Task {
     @Option(name="-P", usage="specify a password")
     String password = null;
 
+    @Option(name="-o", usage="provide additional options for 'svn' command")
+    String additionalOptions = null;
+
     private Listener listener = Listener.CONSOLE;
 
     public void setSvn(String svn) {
@@ -81,6 +84,10 @@ public class Soimp extends Task {
 
     public void setRepository(String repository) {
         this.remoteURL = repository;
+    }
+
+    public void setAdditionalOptions(String additionalOptions) {
+        this.additionalOptions = additionalOptions;
     }
 
     /**
@@ -297,8 +304,16 @@ public class Soimp extends Task {
      */
     private String buildSvnCommand(final String subCmd) {
         final StringBuilder command = new StringBuilder(svn + ' ');
+        addAdditionalOptionsToCommand(command);
         command.append(subCmd);
         return command.toString();
+    }
+
+    private void addAdditionalOptionsToCommand(final StringBuilder command) {
+        if (additionalOptions != null) {
+            command.append(additionalOptions);
+            command.append(' ');
+        }
     }
 
     /**
