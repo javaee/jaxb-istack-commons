@@ -2,7 +2,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -40,64 +40,28 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.sun.istack</groupId>
+        <artifactId>istack-commons</artifactId>
+        <version>2.10-SNAPSHOT</version>
+    </parent>
+    <artifactId>istack-commons-soimp</artifactId>
 
-  <parent>
-      <groupId>net.java</groupId>
-      <artifactId>jvnet-parent</artifactId>
-      <version>1</version>
-  </parent>
+    <name>istack common utility code soimp</name>
 
-  <groupId>com.sun.istack</groupId>
-  <artifactId>istack-commons</artifactId>
-  <version>2.10-SNAPSHOT</version>
-  <packaging>pom</packaging>
-
-  <name>istack common utility code</name>
-  
-  <modules>
-    <module>buildtools</module>
-    <module>runtime</module>
-    <module>test</module>
-    <module>tools</module>
-    <module>maven-plugin</module>
-    <module>soimp</module>
-  </modules>
-  
-  <scm>
-    <developerConnection>scm:svn:https://svn.java.net/svn/istack-commons~svn/trunk/istack-commons</developerConnection>
-    <connection>scm:svn:https://svn.java.net/svn/istack-commons~svn/trunk/istack-commons</connection>
-    <url>http://java.net/projects/istack-commons/sources/svn/show/trunk/istack-commons</url>
-  </scm>
-
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-idea-plugin</artifactId>
-        <configuration>
-          <jdkName>JDK1.5</jdkName>
-          <downloadSources>true</downloadSources>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+    </dependencies>
 </project>

@@ -1,4 +1,4 @@
-package com.sun.istack.tools.soimp;
+package com.sun.istack.soimp;
 
 import java.io.File;
 import java.io.IOException;

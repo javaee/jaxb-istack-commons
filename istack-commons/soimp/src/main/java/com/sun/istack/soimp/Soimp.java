@@ -1,4 +1,4 @@
-package com.sun.istack.tools.soimp;
+package com.sun.istack.soimp;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;

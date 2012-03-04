@@ -1,4 +1,4 @@
-package com.sun.istack.tools.soimp;
+package com.sun.istack.soimp;
 
 /**
  * @author Kohsuke Kawaguchi
