@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -47,15 +47,19 @@ import org.apache.tools.ant.IntrospectionHelper;
 import org.apache.tools.ant.Task;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import org.apache.tools.ant.AntClassLoader;
 
 /**
  * Executes a {@link Task} in a special class loader that allows
@@ -148,7 +152,7 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
                         }
                     }
                 }
-                cl = cl.getParent();
+                cl = getParentClassLoader(cl);
             }
             cl = null;
         }
@@ -164,6 +168,62 @@ public abstract class ProtectedTask extends Task implements DynamicConfigurator 
      * Creates a protective class loader that will host the actual task.
      */
     protected abstract ClassLoader createClassLoader() throws ClassNotFoundException, IOException;
+
+    /* workaround for: https://issues.apache.org/bugzilla/show_bug.cgi?id=35436
+       which is fixed in Ant 1.8 but 1.7 still needs to be supported */
+    private ClassLoader getParentClassLoader(final ClassLoader cl) {
+        //Calling getParent() on AntClassLoader doesn't return the - expected -
+        //actual parent classloader but always the SystemClassLoader.
+        if (cl instanceof AntClassLoader) {
+            //1.8 added getConfiguredParent() to get correct 'parent' classloader
+            if (System.getSecurityManager() == null) {
+                return getPCL(cl);
+            } else {
+                return AccessController.doPrivileged(
+                        new PrivilegedAction<ClassLoader>() {
+                            public ClassLoader run() {
+                                return getPCL(cl);
+                            }
+                        });
+            }
+        }
+        return SecureLoader.getParentClassLoader(cl);
+    }
+
+    private ClassLoader getPCL(ClassLoader cl) {
+        try {
+            Method parentM = AntClassLoader.class.getDeclaredMethod("getConfiguredParent");
+            return (ClassLoader) parentM.invoke(cl);
+        } catch (IllegalAccessException ex) {
+            throw new BuildException(ex);
+        } catch (IllegalArgumentException ex) {
+            throw new BuildException(ex);
+        } catch (InvocationTargetException ex) {
+            throw new BuildException(ex);
+        } catch (NoSuchMethodException ex) {
+            //Ant 1.7 try to get 'parent' field
+            Field parentF = null;
+            try {
+                parentF = AntClassLoader.class.getDeclaredField("parent");
+                parentF.setAccessible(true);
+                return (ClassLoader) parentF.get(cl);
+            } catch (IllegalAccessException ex1) {
+                throw new BuildException(ex1);
+            } catch (IllegalArgumentException ex1) {
+                throw new BuildException(ex1);
+            } catch (NoSuchFieldException ex1) {
+                //not Ant 1.8 nor 1.7
+                //should be some warning here?
+            } catch (SecurityException ex1) {
+                throw new BuildException(ex1);
+            } finally {
+                if (parentF != null) {
+                    parentF.setAccessible(false);
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * Captures the elements and attributes.
