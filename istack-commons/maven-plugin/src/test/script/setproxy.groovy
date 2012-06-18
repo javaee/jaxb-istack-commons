@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -38,36 +38,40 @@
  * holder.
  */
 
-package com.sun.istack.localization;
-
-import java.util.Arrays;
-
-/**
- * @author WS Development Team
- */
-public final class LocalizableMessage implements Localizable {
-
-    private final String _bundlename;
-    private final String _key;
-    private final Object[] _args;
-
-    public LocalizableMessage(String bundlename, String key, Object... args) {
-        _bundlename = bundlename;
-        _key = key;
-        if(args==null)
-            args = new Object[0];
-        _args = args;
-    }
-
-    public String getKey() {
-        return _key;
-    }
-
-    public Object[] getArguments() {
-        return Arrays.copyOf(_args, _args.length);
-    }
-
-    public String getResourceBundleName() {
-        return _bundlename;
+log.info("Checking proxy...")
+def itsettings = new XmlParser().parse(project.build.testResources.directory[0] + "/it-settings.xml")
+def itproxy = ""
+if (settings?.proxies) {
+    Node proxies = new Node(itsettings, "proxies")
+    settings?.proxies?.each { proxy ->
+        if (proxy.active) {
+            if ("http".equals(proxy.protocol)) {
+                itproxy =  "-Dhttp.proxyHost=" + proxy.host
+                if (proxy.port) {
+                    itproxy += " -Dhttp.proxyPort=" + proxy.port
+                }
+            }
+            def p = new Node(proxies, "proxy")
+            new Node(p, "protocol", proxy.protocol)
+            new Node(p, "port", proxy.port)
+            if (proxy.username) {new Node(p, "username", proxy.username)}
+            if (proxy.password) {new Node(p, "password", proxy.password)}
+            new Node(p, "host", proxy.host)
+            new Node(p, "active", proxy.active)
+            new Node(p, "nonProxyHosts", proxy.nonProxyHosts)
+        }
     }
 }
+
+if (itproxy.trim().length() > 0) {
+    log.info("Setting: " + itproxy)
+} else {
+    log.info("No proxy found")
+}
+
+def writer = new FileWriter(new File(project.build.directory, "it-settings.xml"))
+XmlNodePrinter printer = new XmlNodePrinter(new PrintWriter(writer))
+printer.setPreserveWhitespace(true);
+printer.print(itsettings)
+
+project.getModel().addProperty("ittest-proxy", itproxy)

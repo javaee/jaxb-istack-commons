@@ -37,37 +37,29 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-
 package com.sun.istack.localization;
 
-import java.util.Arrays;
-
 /**
+ * {@link Localizable} that wraps a non-localizable string.
+ *
  * @author WS Development Team
  */
-public final class LocalizableMessage implements Localizable {
+public final class NullLocalizable implements Localizable {
+    private final String msg;
 
-    private final String _bundlename;
-    private final String _key;
-    private final Object[] _args;
-
-    public LocalizableMessage(String bundlename, String key, Object... args) {
-        _bundlename = bundlename;
-        _key = key;
-        if(args==null)
-            args = new Object[0];
-        _args = args;
+    public NullLocalizable(String msg) {
+        if(msg==null)
+            throw new IllegalArgumentException();
+        this.msg = msg;
     }
 
     public String getKey() {
-        return _key;
+        return Localizable.NOT_LOCALIZABLE;
     }
-
     public Object[] getArguments() {
-        return Arrays.copyOf(_args, _args.length);
+        return new Object[]{msg};
     }
-
     public String getResourceBundleName() {
-        return _bundlename;
+        return "";
     }
 }

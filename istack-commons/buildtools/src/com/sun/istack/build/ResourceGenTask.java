@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,6 +40,7 @@
 
 package com.sun.istack.build;
 
+import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
@@ -50,6 +51,8 @@ import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JPackage;
+import com.sun.codemodel.writer.FileCodeWriter;
+import com.sun.codemodel.writer.FilterCodeWriter;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
@@ -59,9 +62,12 @@ import org.apache.tools.ant.types.FileSet;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -70,6 +76,7 @@ import java.util.Properties;
  * instead of hard-coding string constants, which is
  * much harder to search.
  *
+ * @author Lukas Jungmann
  * @author Kohsuke Kawaguchi
  */
 public class ResourceGenTask extends Task {
@@ -80,6 +87,21 @@ public class ResourceGenTask extends Task {
 
     private File destDir;
 
+    /**
+     * @since 2.12
+     */
+    private File license;
+
+    /**
+     * @since 2.12
+     */
+    private String localizationUtilitiesPkgName;
+
+    /**
+     * @since 2.12
+     */
+    private String encoding;
+
     public void addConfiguredResource( FileSet fs ) {
         resources = fs;
     }
@@ -88,13 +110,48 @@ public class ResourceGenTask extends Task {
         this.destDir = dir;
     }
 
+    /**
+     * @since 2.12
+     */
+    public void setLicense(File license) {
+        this.license = license;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    /**
+     * @since 2.12
+     */
+    public void setLocalizationUtilitiesPkgName(String localizationUtilitiesPkgName) {
+        this.localizationUtilitiesPkgName = localizationUtilitiesPkgName;
+    }
+
     public void execute() throws BuildException {
         if(resources==null)
             throw new BuildException("No resource file is specified");
         if(destDir==null)
             throw new BuildException("No destdir attribute is specified");
 
-        destDir.mkdirs();
+        if(localizationUtilitiesPkgName == null) {
+            localizationUtilitiesPkgName = "com.sun.istack.localization";
+        }
+
+        if (!destDir.exists() && !destDir.mkdirs()) {
+                throw new BuildException("Cannot create destdir");
+        }
+
+        if (!destDir.canWrite()) {
+            throw new BuildException("Cannot write to destdir");
+        }
+
+        if (encoding == null || encoding.trim().length() == 0) {
+            encoding =  System.getProperty("file.encoding");
+            log("File encoding has not been set, using platform encoding "
+                    + encoding + ", i.e. build is platform dependent!",
+                    Project.MSG_WARN);
+        }
 
         JCodeModel cm = new JCodeModel();
 
@@ -123,12 +180,20 @@ public class ResourceGenTask extends Task {
             JPackage pkg = cm._package(dirName);
 
             Properties props = new Properties();
+            FileInputStream in = null;
             try {
-                FileInputStream in = new FileInputStream(res);
+                in = new FileInputStream(res);
                 props.load(in);
-                in.close();
             } catch (IOException e) {
-                throw new BuildException(e);
+                throw new BuildException(e.getMessage(), e);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ioe) {
+                        throw new BuildException(ioe.getMessage(), ioe);
+                    }
+                }
             }
 
             JDefinedClass clazz;
@@ -154,9 +219,9 @@ public class ResourceGenTask extends Task {
             JClass l_class;
             JClass lable_class;
             try {
-                lmf_class = cm.parseType("com.sun.istack.localization.LocalizableMessageFactory").boxify();
-                l_class = cm.parseType("com.sun.istack.localization.Localizer").boxify();
-                lable_class = cm.parseType("com.sun.istack.localization.Localizable").boxify();
+                lmf_class = cm.parseType(addLocalizationUtilityPackageName("LocalizableMessageFactory")).boxify();
+                l_class = cm.parseType(addLocalizationUtilityPackageName("Localizer")).boxify();
+                lable_class = cm.parseType(addLocalizationUtilityPackageName("Localizable")).boxify();
             } catch (ClassNotFoundException e) {
                 throw new BuildException(e); // impossible -- but why parseType throwing ClassNotFoundExceptoin!?
             }
@@ -167,7 +232,7 @@ public class ResourceGenTask extends Task {
             JFieldVar $localizer = clazz.field(JMod.PRIVATE|JMod.STATIC|JMod.FINAL,
                 l_class, "localizer", JExpr._new(l_class));
 
-            for (Object key : props.keySet()) {
+            for (Map.Entry<Object,Object> e : props.entrySet()) {
                 // [RESULT]
                 // Localizable METHOD_localizable(Object arg1, Object arg2, ...) {
                 //   return messageFactory.getMessage("servlet.html.notFound", message));
@@ -175,14 +240,14 @@ public class ResourceGenTask extends Task {
                 // String METHOD(Object arg1, Object arg2, ...) {
                 //   return localizer.localize(METHOD_localizable(arg1,arg2,...));
                 // }
-                String methodBaseName = NameConverter.smart.toConstantName(key.toString());
+                String methodBaseName = NameConverter.smart.toConstantName(e.getKey().toString());
 
                 JMethod method = clazz.method(JMod.PUBLIC | JMod.STATIC, lable_class, "localizable"+methodBaseName);
 
-                int countArgs = countArgs(props.getProperty(key.toString()));
+                int countArgs = countArgs(e.getValue().toString());
 
                 JInvocation format = $msgFactory.invoke("getMessage").arg(
-                    JExpr.lit(key.toString()));
+                    JExpr.lit(e.getKey().toString()));
 
                 for( int i=0; i<countArgs; i++ ) {
                     format.arg( method.param(Object.class,"arg"+i));
@@ -190,7 +255,7 @@ public class ResourceGenTask extends Task {
                 method.body()._return(format);
 
                 JMethod method2 = clazz.method(JMod.PUBLIC|JMod.STATIC, String.class, methodBaseName);
-                method2.javadoc().add(props.get(key));
+                method2.javadoc().add(e.getValue());
 
                 JInvocation localize = JExpr.invoke(method);
                 for( int i=0; i<countArgs; i++ ) {
@@ -202,10 +267,18 @@ public class ResourceGenTask extends Task {
         }
 
         try {
-            cm.build(destDir);
+            CodeWriter core = new FileCodeWriter(destDir, encoding);
+            if (license != null) {
+                core = new LicenseCodeWriter(core, license, encoding);
+            }
+            cm.build(core);
         } catch (IOException e) {
             throw new BuildException("Failed to generate code",e);
         }
+    }
+
+    private String addLocalizationUtilityPackageName(final String className) {
+        return String.format("%s.%s", localizationUtilitiesPkgName, className);
     }
 
     /**
@@ -232,5 +305,51 @@ public class ResourceGenTask extends Task {
         int suffixIndex = name.lastIndexOf('.');
         name = name.substring(0,suffixIndex);
         return NameConverter.smart.toClassName(name)+"Messages";
+    }
+
+    /**
+     * Writes all the source files under the specified file folder and
+     * inserts a license file each java source file.
+     *
+     * @author Jitendra Kotamraju
+     *
+     */
+    public static class LicenseCodeWriter extends FilterCodeWriter {
+        private final File license;
+
+        /**
+         * @param core
+         *      This CodeWriter will be used to actually create a storage for files.
+         *      LicenseCodeWriter simply decorates this underlying CodeWriter by
+         *      adding prolog comments.
+         * @param license license File
+         */
+        public LicenseCodeWriter(CodeWriter core, File license, String encoding) {
+            super(core);
+            this.license = license;
+            this.encoding = encoding;
+        }
+
+        public Writer openSource(JPackage pkg, String fileName) throws IOException {
+            Writer w = super.openSource(pkg,fileName);
+
+            PrintWriter out = new PrintWriter(w);
+            FileInputStream fin = null;
+            try {
+                fin = new FileInputStream(license);
+                byte[] buf = new byte[8192];
+                int len;
+                while ((len=fin.read(buf)) != -1) {
+                    out.write(new String(buf, 0, len));
+                }
+            } finally {
+                if (fin != null) {
+                    fin.close();
+                }
+            }
+            out.flush();    // we can't close the stream for that would close the undelying stream.
+
+            return w;
+        }
     }
 }

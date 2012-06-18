@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -37,37 +37,16 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-
-package com.sun.istack.localization;
-
-import java.util.Arrays;
+package com.sun.xml.ws;
 
 /**
- * @author WS Development Team
+ * Hello world!
+ *
  */
-public final class LocalizableMessage implements Localizable {
-
-    private final String _bundlename;
-    private final String _key;
-    private final Object[] _args;
-
-    public LocalizableMessage(String bundlename, String key, Object... args) {
-        _bundlename = bundlename;
-        _key = key;
-        if(args==null)
-            args = new Object[0];
-        _args = args;
-    }
-
-    public String getKey() {
-        return _key;
-    }
-
-    public Object[] getArguments() {
-        return Arrays.copyOf(_args, _args.length);
-    }
-
-    public String getResourceBundleName() {
-        return _bundlename;
+public class App 
+{
+    public static void main( String[] args )
+    {
+        System.out.println( "Hello World!" );
     }
 }

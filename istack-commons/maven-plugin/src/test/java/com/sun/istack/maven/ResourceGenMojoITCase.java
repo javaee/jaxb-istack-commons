@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -37,37 +37,30 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+package com.sun.istack.maven;
 
-package com.sun.istack.localization;
-
-import java.util.Arrays;
+import java.io.File;
+import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * @author WS Development Team
+ *
+ * @author Lukas Jungmann
  */
-public final class LocalizableMessage implements Localizable {
+public class ResourceGenMojoITCase extends TestCase {
 
-    private final String _bundlename;
-    private final String _key;
-    private final Object[] _args;
+    private static final File PROJECTS_DIR = new File(System.getProperty("it.projects.dir"));
 
-    public LocalizableMessage(String bundlename, String key, Object... args) {
-        _bundlename = bundlename;
-        _key = key;
-        if(args==null)
-            args = new Object[0];
-        _args = args;
+    public ResourceGenMojoITCase() {
     }
 
-    public String getKey() {
-        return _key;
-    }
-
-    public Object[] getArguments() {
-        return Arrays.copyOf(_args, _args.length);
-    }
-
-    public String getResourceBundleName() {
-        return _bundlename;
+    @Test
+    public void testGeneration() {
+        File project = new File(PROJECTS_DIR, "sample");
+        File f = new File(project, "target/generated-sources/resources/org/aaa/ApropMessages.java");
+        Assert.assertTrue("Not found " + f.getAbsolutePath(), f.exists());
+        f = new File(project, "target/classes/org/aaa/ApropMessages.class");
+        Assert.assertTrue("Not found " + f.getAbsolutePath(), f.exists());
     }
 }
