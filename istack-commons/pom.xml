@@ -87,7 +87,7 @@
         <artifactId>maven-idea-plugin</artifactId>
         <version>2.2</version>
         <configuration>
-          <jdkName>JDK1.5</jdkName>
+          <jdkName>JDK1.6</jdkName>
           <downloadSources>true</downloadSources>
         </configuration>
       </plugin>
