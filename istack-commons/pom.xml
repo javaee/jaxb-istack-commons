@@ -128,7 +128,7 @@
 
     <properties>
         <findbugs.skip>false</findbugs.skip>
-        <findbugs.threshold>High</findbugs.threshold>
+        <findbugs.threshold>Low</findbugs.threshold>
         <findbugs.exclude />
     </properties>
 
