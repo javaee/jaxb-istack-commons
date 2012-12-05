@@ -1,9 +1,8 @@
-<?xml version="1.0"?>
 <!--
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -41,60 +40,6 @@
 
 -->
 
-<!--
-  Common part of the individual modules
--->
-<project name="build-common">
-  <property file="project.properties" />
+<FindBugsFilter>
 
-  <!-- default build id -->
-  <tstamp>
-    <format property="now" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
-  </tstamp>
-  <property name="build.id" value="${now}(${user.name})" />
-
-
-  <target name="compile" unless="from.source">
-    <mkdir dir="build/classes"/>
-    <javac srcdir="src"
-      source="1.5"
-      target="1.5"
-      destdir="build/classes"
-      debug="on">
-      <classpath>
-        <fileset dir="." includes="lib/*.jar" />
-      </classpath>
-    </javac>
-  </target>
-
-  <target name="compile-from-source" if="from.source">
-    <mkdir dir="build/classes"/>
-    <javac srcdir="src"
-      destdir="build/classes"
-      source="1.5"
-      target="1.5"
-      debug="on">
-    </javac>
-  </target>
-
-  <target name="jar" depends="compile, compile-from-source">
-    <jar jarfile="build/${name}.jar">
-      <manifest>
-        <attribute name="Build-Id" value="${build.id}" />
-      </manifest>
-      <fileset dir="build/classes" />
-    </jar>
-  </target>
-
-  <target name="src-zip">
-    <jar jarfile="build/${name}-src.zip">
-      <fileset dir="src" />
-    </jar>
-  </target>
-
-  <target name="clean">
-    <delete dir="build" />
-  </target>
-
-  <target name="dist" depends="jar, src-zip" />
-</project>
+</FindBugsFilter>
