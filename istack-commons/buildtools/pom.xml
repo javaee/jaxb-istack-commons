@@ -47,6 +47,7 @@
     <groupId>com.sun.istack</groupId>
     <artifactId>istack-commons</artifactId>
     <version>2.15-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>istack-commons-buildtools</artifactId>
   <name>istack-commons-buildtools</name>

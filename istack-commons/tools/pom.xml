@@ -46,6 +46,7 @@
     <groupId>com.sun.istack</groupId>
     <artifactId>istack-commons</artifactId>
     <version>2.15-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>istack-commons-tools</artifactId>
   
@@ -89,10 +90,7 @@
       <!-- NOTE: This will not be activated on Mac OS X because classes.jar already has the tools in it. -->
       <id>default-tools.jar</id>
       <activation>
-        <property>
-          <name>java.vendor</name>
-          <value>Sun Microsystems Inc.</value>
-        </property>
+          <activeByDefault>true</activeByDefault>
       </activation>
       <dependencies>
         <dependency>
