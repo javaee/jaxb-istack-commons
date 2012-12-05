@@ -43,6 +43,7 @@ package com.sun.istack.maven;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Methods that convert strings into various formats.
@@ -84,7 +85,7 @@ class NameUtil {
             return s;
         StringBuilder sb = new StringBuilder(s.length());
         sb.append(Character.toUpperCase(s.charAt(0)));
-        sb.append(s.substring(1).toLowerCase());
+        sb.append(s.substring(1).toLowerCase(Locale.ENGLISH));
         return sb.toString();
     }
 
@@ -225,7 +226,7 @@ class NameUtil {
     protected String toMixedCaseName(List<String> ss, boolean startUpper) {
         StringBuilder sb = new StringBuilder();
         if(!ss.isEmpty()) {
-            sb.append(startUpper ? ss.get(0) : ss.get(0).toLowerCase());
+            sb.append(startUpper ? ss.get(0) : ss.get(0).toLowerCase(Locale.ENGLISH));
             for (int i = 1; i < ss.size(); i++)
                 sb.append(ss.get(i));
         }
@@ -240,7 +241,7 @@ class NameUtil {
                 ss[i] = capitalize(ss[i]);
         StringBuilder sb = new StringBuilder();
         if( ss.length>0 ) {
-            sb.append(startUpper ? ss[0] : ss[0].toLowerCase());
+            sb.append(startUpper ? ss[0] : ss[0].toLowerCase(Locale.ENGLISH));
             for (int i = 1; i < ss.length; i++)
                 sb.append(ss[i]);
         }
@@ -269,10 +270,10 @@ class NameUtil {
     public String toConstantName(List<String> ss) {
         StringBuilder sb = new StringBuilder();
         if( !ss.isEmpty() ) {
-            sb.append(ss.get(0).toUpperCase());
+            sb.append(ss.get(0).toUpperCase(Locale.ENGLISH));
             for (int i = 1; i < ss.size(); i++) {
                 sb.append('_');
-                sb.append(ss.get(i).toUpperCase());
+                sb.append(ss.get(i).toUpperCase(Locale.ENGLISH));
             }
         }
         return sb.toString();

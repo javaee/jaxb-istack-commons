@@ -122,34 +122,57 @@ public class MetainfServicesCompilerMojo extends AbstractMojo {
      */
     protected ArtifactRepository localRepository;
 
+    @Override
     public void execute() throws MojoExecutionException {
         getLog().info("About to compile META-INF/services files");
         getLog().info("Artifact Items = " + artifactItems);
         getLog().info("SPIs = " + providers);
         getLog().info("dest dir = " + destDir);
         File msDir = new File(destDir, "META-INF/services");
-        msDir.mkdirs();
+        boolean created =msDir.mkdirs();
+        if (!created) {
+            Logger.getLogger(MetainfServicesCompilerMojo.class.getName()).log(Level.FINE, "Cannot create directory: {0}", msDir);
+        }
         for (String spi : providers) {
             PrintWriter registryWriter = null;
             try {
                 File spiRegistry = new File(msDir, spi);
                 if (spiRegistry.exists()) {
-                    spiRegistry.delete();
+                    boolean deleted = spiRegistry.delete();
+                    if (!deleted) {
+                        Logger.getLogger(MetainfServicesCompilerMojo.class.getName()).log(Level.FINE, "Cannot delete file: {0}", spiRegistry);
+                    }
                 }
-                spiRegistry.createNewFile();
+                created = spiRegistry.createNewFile();
+                if (!created) {
+                    Logger.getLogger(MetainfServicesCompilerMojo.class.getName()).log(Level.FINE, "Cannot create file: {0}", spiRegistry);
+                }
                 registryWriter = new PrintWriter(spiRegistry);
+                ZipFile zipFile = null;
                 try {
+                    BufferedReader reader = null;
+                    InputStreamReader isReader = null;
                     for (ArtifactItem ai : artifactItems) {
                         Artifact artifact;
                         artifact = artifactFactory.createExtensionArtifact(ai.getGroupId(), ai.getArtifactId(), VersionRange.createFromVersion(ai.getVersion()));
                         artifactResolver.resolve(artifact, remoteRepositories, localRepository);
-                        ZipFile zipFile = new ZipFile(artifact.getFile());
+                        zipFile = new ZipFile(artifact.getFile());
                         final ZipEntry servicesEntry = zipFile.getEntry("META-INF/services/" + spi);
                         if (servicesEntry != null) {
-                            final InputStream inputStream = zipFile.getInputStream(servicesEntry);
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                            while (reader.ready()) {
-                                registryWriter.println(reader.readLine());
+                            try {
+                                final InputStream inputStream = zipFile.getInputStream(servicesEntry);
+                                isReader = new InputStreamReader(inputStream);
+                                reader = new BufferedReader(isReader);
+                                while (reader.ready()) {
+                                    registryWriter.println(reader.readLine());
+                                }
+                            } finally {
+                                if (reader != null) {
+                                    reader.close();
+                                }
+                                if (isReader != null) {
+                                    isReader.close();
+                                }
                             }
                         }
                     }
@@ -157,11 +180,17 @@ public class MetainfServicesCompilerMojo extends AbstractMojo {
                     throw new MojoExecutionException("Can not resolve artifact!", ex);
                 } catch (ArtifactNotFoundException ex) {
                     Logger.getLogger(MetainfServicesCompilerMojo.class.getName()).log(Level.SEVERE, null, ex);
+                } finally {
+                    if (zipFile != null) {
+                        zipFile.close();
+                    }
                 }
             } catch (IOException ex) {
                     throw new MojoExecutionException("Can not create spi registry file!", ex);
             } finally {
-                registryWriter.close();
+                if (registryWriter != null) {
+                    registryWriter.close();
+                }
             }
         }
     }

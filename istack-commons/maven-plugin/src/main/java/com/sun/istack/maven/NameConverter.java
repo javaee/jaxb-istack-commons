@@ -42,6 +42,7 @@ package com.sun.istack.maven;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 /**
@@ -194,7 +195,7 @@ public interface NameConverter
                     token = '_' + token;
                 }
 
-                tokens.set( i, token.toLowerCase() );
+                tokens.set( i, token.toLowerCase(Locale.ENGLISH) );
             }
 
             // concat all the pieces and return it

@@ -52,7 +52,10 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * {@link TestListener} that bridges to {@link JUnitResultFormatter}.
@@ -67,6 +70,8 @@ public class AntXmlFormatter implements TestListener,Closeable {
 
     private final File dir;
 
+    FileOutputStream outStream = null;
+            
     /**
      * Stdout, stderr that were replaced. Kept so that we can restore them in {@link #close()}.
      */
@@ -118,7 +123,8 @@ public class AntXmlFormatter implements TestListener,Closeable {
         antTest = new JUnitTest(testName);
         antTest.setCounts(1,0,0);
         try {
-            antf.setOutput(new FileOutputStream(new File(dir,getResultFileName(testName))));
+            outStream = new FileOutputStream(new File(dir,getResultFileName(testName)));
+            antf.setOutput(outStream);
         } catch (FileNotFoundException e) {
             throw new Error(e);
         }
@@ -173,6 +179,13 @@ public class AntXmlFormatter implements TestListener,Closeable {
         antTest.setRunTime(System.currentTimeMillis()-startTime);
         antf.endTestSuite(antTest);
 
+        if (out != null) {
+            try {
+                outStream.close();
+            } catch (IOException ex) {
+                Logger.getLogger(AntXmlFormatter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         antf = null;
         antTest = null;
     }

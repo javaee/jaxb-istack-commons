@@ -59,6 +59,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Subversion overwriting import tool.
@@ -202,8 +204,14 @@ public class Soimp extends Task {
 
     private void svnImport(File src, String repository) throws IOException, ProcessingException {
         File tmp = File.createTempFile("soimp","tmp");
-        tmp.delete();
-        tmp.mkdir();
+        boolean deleted = tmp.delete();
+        if (!deleted) {
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Cannot delete file: {0}", tmp);
+        }
+        boolean created = tmp.mkdir();
+        if (!created) {
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Cannot create directory: {0}", tmp);
+        }
         listener.info("Using "+tmp);
 
         Project p = new Project(); // dummy ant projcet
@@ -293,6 +301,8 @@ public class Soimp extends Task {
                 break;
             case DELETED:
                 deletedFiles.add(file);
+                break;
+            default:
                 break;
             }
         }

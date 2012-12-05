@@ -40,6 +40,7 @@
 
 package com.sun.istack.test;
 
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 /**
@@ -86,7 +87,7 @@ public class VersionNumber implements Comparable<VersionNumber> {
 
         int i=0;
         while( tokens.hasMoreTokens() ) {
-            String token = tokens.nextToken().toLowerCase();
+            String token = tokens.nextToken().toLowerCase(Locale.ENGLISH);
             if(token.equals("*")) {
                 digits[i++] = 1000;
             } else
@@ -120,7 +121,10 @@ public class VersionNumber implements Comparable<VersionNumber> {
 
 
     public boolean equals( Object o ) {
-        return compareTo((VersionNumber)o)==0;
+        if (o instanceof VersionNumber) {
+            return compareTo((VersionNumber)o)==0;
+        }
+        return false;
     }
 
     public int hashCode() {
