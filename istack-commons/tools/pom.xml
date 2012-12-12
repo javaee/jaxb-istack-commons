@@ -90,7 +90,10 @@
       <!-- NOTE: This will not be activated on Mac OS X because classes.jar already has the tools in it. -->
       <id>default-tools.jar</id>
       <activation>
-          <activeByDefault>true</activeByDefault>
+          <property>
+              <name>java.vendor</name>
+              <value>Sun Microsystems Inc.</value>
+          </property>      
       </activation>
       <dependencies>
         <dependency>
