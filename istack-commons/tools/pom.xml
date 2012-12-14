@@ -53,7 +53,6 @@
   <name>istack common utility code tools</name>
 
   <build>
-    <sourceDirectory>src</sourceDirectory>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
