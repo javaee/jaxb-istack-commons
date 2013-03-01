@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,6 +42,7 @@ package com.sun.istack.tools;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import javax.xml.stream.XMLInputFactory;
@@ -91,14 +92,13 @@ public class ParallelWorldClassLoaderTest {
 //        Class c3 = pwcl.findClass("javax.xml.ws.Service");
 //        Assert.assertEquals(c3.getDeclaredMethods().length, 1);
         
-        Class c1 = null;
+        Class c1,c2;
         try {
             c1 = Class.forName("javax.xml.ws.Service", false, pwcl);
             Assert.assertEquals(c1.getDeclaredMethods().length, 1);
         } catch (ClassNotFoundException cnfe) {
             Assert.fail();
         }
-        Class c2 = null;
         try {
             c2 = Class.forName("javax.xml.ws.Service", false, Thread.currentThread().getContextClassLoader());
             Assert.assertEquals(c2.getDeclaredMethods().length, 1);
@@ -125,8 +125,12 @@ public class ParallelWorldClassLoaderTest {
     @Test
     public void testFindResources() throws Exception {
         Enumeration<URL> foundURLs = pwcl.getResources("javax/xml/ws/Service.class");
-        //XXX: shouldn't there be only 2 resources found?
-        Assert.assertEquals(Collections.list(foundURLs).size(), 3);
+        // TODO - this depends on jdk, maven cp, e.g.
+        ArrayList al = Collections.list(foundURLs);
+        int found = al.size();
+        if (!((found == 3) || (found == 4))) {
+            Assert.fail("Expected 3/4 elements. Verify the urls: \n" + al);
+        }
     }
 
     @Test
