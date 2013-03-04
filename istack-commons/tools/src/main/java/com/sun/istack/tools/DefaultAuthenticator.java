@@ -71,13 +71,13 @@ import org.xml.sax.helpers.LocatorImpl;
 public class DefaultAuthenticator extends Authenticator {
 
     private static DefaultAuthenticator instance;
-    private static Authenticator systemAuthenticator;
+    private static Authenticator systemAuthenticator = getCurrentAuthenticator();
     private String proxyUser;
     private String proxyPasswd;
     private final List<AuthInfo> authInfo = new ArrayList<AuthInfo>();
     private static int counter = 0;
 
-    private DefaultAuthenticator() {
+    DefaultAuthenticator() {
         //try undocumented but often used properties
         if (System.getProperty("http.proxyUser") != null) {
             proxyUser = System.getProperty("http.proxyUser");
@@ -94,7 +94,6 @@ public class DefaultAuthenticator extends Authenticator {
     public static synchronized DefaultAuthenticator getAuthenticator() {
         if (instance == null) {
             instance = new DefaultAuthenticator();
-            systemAuthenticator = getCurrentAuthenticator();
             Authenticator.setDefault(instance);
         }
         counter++;
@@ -153,19 +152,20 @@ public class DefaultAuthenticator extends Authenticator {
         FileInputStream fi = null;
         InputStreamReader is = null;
         try {
+            String text;
+            LocatorImpl locator = new LocatorImpl();
+            locator.setSystemId(f.getAbsolutePath());
             try {
                 fi = new FileInputStream(f);
                 is = new InputStreamReader(fi, "UTF-8");
                 in = new BufferedReader(is);
             } catch (UnsupportedEncodingException e) {
-                listener.onError(e, null);
+                listener.onError(e, locator);
                 return;
             } catch (FileNotFoundException e) {
-                listener.onError(e, null);
+                listener.onError(e, locator);
                 return;
             }
-            String text;
-            LocatorImpl locator = new LocatorImpl();
             try {
                 int lineno = 1;
                 locator.setSystemId(f.getCanonicalPath());
@@ -177,9 +177,7 @@ public class DefaultAuthenticator extends Authenticator {
                     }
                     try {
                         AuthInfo ai = parseLine(text);
-                        if (ai != null) {
-                            authInfo.add(ai);
-                        }
+                        authInfo.add(ai);
                     } catch (Exception e) {
                         listener.onParsingError(text, locator);
                     }
@@ -258,15 +256,13 @@ public class DefaultAuthenticator extends Authenticator {
         } catch (Exception ex) {
             return null;
         } finally {
-            if (f != null) {
-                AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                    @Override
-                    public Void run() {
-                        f.setAccessible(false);
-                        return null;
-                    }
-                });
-            }
+            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                @Override
+                public Void run() {
+                    f.setAccessible(false);
+                    return null;
+                }
+            });
         }
     }
 
