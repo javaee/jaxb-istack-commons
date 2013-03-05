@@ -277,4 +277,18 @@
         <netbeans.hint.jdkPlatform>JDK_1.6</netbeans.hint.jdkPlatform>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>jvnet-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
