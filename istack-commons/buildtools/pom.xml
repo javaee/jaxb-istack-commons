@@ -46,7 +46,7 @@
   <parent>
     <groupId>com.sun.istack</groupId>
     <artifactId>istack-commons</artifactId>
-    <version>2.17-SNAPSHOT</version>
+    <version>2.17</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>istack-commons-buildtools</artifactId>
