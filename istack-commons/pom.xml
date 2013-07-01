@@ -100,6 +100,7 @@
         <module>test</module>
         <module>tools</module>
         <module>maven-plugin</module>
+        <module>import-properties-plugin</module>
         <module>soimp</module>
     </modules>
   
