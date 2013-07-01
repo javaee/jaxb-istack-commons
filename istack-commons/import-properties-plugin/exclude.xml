@@ -46,7 +46,7 @@
     -->
     <Match>
         <Or>
-            <Class name="HelpMojo"/>
+            <Class name="com.oracle.istack.maven.HelpMojo"/>
         </Or>
     </Match>    
 </FindBugsFilter>
