@@ -108,16 +108,16 @@ public class ImportPropertiesMojo extends AbstractMojo {
             projectProperties = project.getProperties();  
 
             MavenProject bomProject = project;
-            while (!bomProject.getArtifactId().endsWith("-bom")) {
+            while (bomProject != null && !bomProject.getArtifactId().endsWith("-bom")) {
                 bomProject = bomProject.getParent();
             }
-            
-            if (!bomProject.getArtifactId().endsWith("-bom")) {
-                getLog().warn("No BOM found in project hierarchy.");
-                return;
+                        
+            if (bomProject == null || !bomProject.getArtifactId().endsWith("-bom")) {
+                getLog().warn("No '*-bom' project found in project hierarchy, using this project's pom for import search.");
+                bomProject = project;
             }
 
-            getLog().warn("Found BOM project: " + bomProject.getArtifactId());
+            getLog().warn("Searching project: " + bomProject.getArtifactId());
 
             PropertyResolver resolver = new PropertyResolver(new CommonLogger(getLog()), projectProperties, repoSession, repoSystem, pluginRepos);
             resolver.resolveProperties(bomProject);
