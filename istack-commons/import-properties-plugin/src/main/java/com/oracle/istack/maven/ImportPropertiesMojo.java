@@ -92,13 +92,13 @@ public class ImportPropertiesMojo extends AbstractMojo {
     private RepositorySystemSession repoSession;
 
     /**
-     * The project's remote repositories to use for the resolution of plugins
-     * and their dependencies.
+     * The project's remote repositories to use for the resolution of project
+     * and its dependencies.
      *
      * @since 2.3.1
      */
-    @Parameter(defaultValue = "${project.remotePluginRepositories}", readonly = true)
-    private List<RemoteRepository> pluginRepos;
+    @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true)
+    private List<RemoteRepository> projectRepos;
 
     private Properties projectProperties = null;
     
@@ -119,7 +119,7 @@ public class ImportPropertiesMojo extends AbstractMojo {
 
             getLog().warn("Searching project: " + bomProject.getArtifactId());
 
-            PropertyResolver resolver = new PropertyResolver(new CommonLogger(getLog()), projectProperties, repoSession, repoSystem, pluginRepos);
+            PropertyResolver resolver = new PropertyResolver(new CommonLogger(getLog()), projectProperties, repoSession, repoSystem, projectRepos);
             resolver.resolveProperties(bomProject);
             
         } catch (FileNotFoundException ex) {
