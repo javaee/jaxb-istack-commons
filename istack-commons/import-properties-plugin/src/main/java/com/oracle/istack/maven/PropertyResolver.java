@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -54,12 +54,12 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.resolution.DependencyResult;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.repository.RemoteRepository;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
 
 /**
  *
@@ -67,17 +67,17 @@ import org.sonatype.aether.repository.RemoteRepository;
  */
 public class PropertyResolver {
     
-    private CommonLogger logger;
+    private final CommonLogger logger;
     
-    private MavenXpp3Reader mavenreader = new MavenXpp3Reader();
+    private final MavenXpp3Reader mavenreader = new MavenXpp3Reader();
 
-    private Properties properties;
+    private final Properties properties;
 
-    private RepositorySystemSession repoSession;
+    private final RepositorySystemSession repoSession;
     
-    private RepositorySystem repoSystem;
+    private final RepositorySystem repoSystem;
     
-    private List<RemoteRepository> pluginRepos;
+    private final List<RemoteRepository> pluginRepos;
     
     PropertyResolver(CommonLogger logger, Properties properties, RepositorySystemSession session, 
             RepositorySystem repoSystem, List<RemoteRepository> pluginRepositories) {
@@ -107,8 +107,6 @@ public class PropertyResolver {
              Logger.getLogger(ImportPropertiesMojo.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(ImportPropertiesMojo.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (XmlPullParserException ex) {
-            Logger.getLogger(ImportPropertiesMojo.class.getName()).log(Level.SEVERE, null, ex);
         }
         MavenProject loadedProject = new MavenProject(model);
 
@@ -132,7 +130,7 @@ public class PropertyResolver {
                     }
                     d.setVersion(version);
                     d.setType("pom");
-                    d.setClassifier("pom");                    
+                    d.setClassifier("pom");
                     result = DependencyResolver.resolve(d, pluginRepos, repoSystem, repoSession);                                        
                     Artifact a = result.getArtifactResults().get(0).getArtifact();
                     reader = new FileReader(a.getFile());

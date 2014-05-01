@@ -61,8 +61,8 @@
 
     <properties>
         <findbugs.exclude>${project.basedir}/exclude.xml</findbugs.exclude>
-        <aether.version>1.13.1</aether.version>
-        <maven.api.version>3.0.5</maven.api.version>
+        <aether.version>0.9.1.v20140329</aether.version>
+        <maven.api.version>3.1.0</maven.api.version>
     </properties>
 
     <dependencies>      
@@ -71,21 +71,6 @@
             <artifactId>maven-compat</artifactId>
             <version>${maven.api.version}</version>
         </dependency>      
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-project</artifactId>
-            <version>3.0-alpha-2</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>maven-model</artifactId>
-                    <groupId>org.apache.maven</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>plexus-interpolation</artifactId>
-                    <groupId>org.codehaus.plexus</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
@@ -129,33 +114,38 @@
             <version>${maven.api.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-api</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-impl</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-spi</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-util</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-connector-file</artifactId>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-transport-file</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-connector-wagon</artifactId>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-connector-basic</artifactId>
+            <version>${aether.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-transport-wagon</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>

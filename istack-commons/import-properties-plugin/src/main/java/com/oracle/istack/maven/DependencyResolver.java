@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,16 +41,16 @@
 package com.oracle.istack.maven;
 
 import java.util.List;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.collection.CollectRequest;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.resolution.DependencyRequest;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.resolution.DependencyResult;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.artifact.DefaultArtifact;
 
 /**
  *
@@ -62,14 +62,6 @@ final class DependencyResolver {
             RepositorySystem repoSystem, RepositorySystemSession repoSession) throws DependencyResolutionException {
         DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, null);
         return repoSystem.resolveDependencies(repoSession, dependencyRequest);
-    }
-
-    public static DependencyResult resolve(org.apache.maven.artifact.Artifact artifact, List<RemoteRepository> remoteRepos,
-            RepositorySystem repoSystem, RepositorySystemSession repoSession) throws DependencyResolutionException {
-        Artifact a = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getClassifier(), "pom", artifact.getVersion());
-        Dependency dependency = new Dependency(a, null);
-        CollectRequest collectRequest = new CollectRequest(dependency, remoteRepos);
-        return resolve(collectRequest, remoteRepos, repoSystem, repoSession);
     }
 
     public static DependencyResult resolve(org.apache.maven.model.Dependency dependency, List<RemoteRepository> remoteRepos,

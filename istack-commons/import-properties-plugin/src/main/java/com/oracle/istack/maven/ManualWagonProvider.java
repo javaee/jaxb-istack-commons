@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,7 +43,7 @@ package com.oracle.istack.maven;
 import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpsWagon;
-import org.sonatype.aether.connector.wagon.WagonProvider;
+import org.eclipse.aether.transport.wagon.WagonProvider;
 
 /**
  * A simplistic provider for wagon instances when no Plexus-compatible IoC container is used.
