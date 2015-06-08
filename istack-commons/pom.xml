@@ -52,7 +52,7 @@
 
     <groupId>com.sun.istack</groupId>
     <artifactId>istack-commons</artifactId>
-    <version>2.22-SNAPSHOT</version>
+    <version>2.23-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>istack common utility code</name>
