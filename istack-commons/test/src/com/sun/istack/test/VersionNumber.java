@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -50,13 +50,13 @@ import java.util.StringTokenizer;
  *
  * <p>
  * We allow a component to be not just a number, but also "ea", "ea1", "ea2".
- * "ea" is treated as "ea0", and eaN &lt; M for any M > 0.
+ * "ea" is treated as "ea0", and {@code eaN < M for any M > 0}.
  *
  * <p>
- * '*' is also allowed as a component, and '*' > M for any M > 0.
+ * '*' is also allowed as a component, and {@code '*' > M} for any {@code M > 0}.
  *
  * <pre>
- * 2.0.* > 2.0.1 > 2.0.0 > 2.0.ea > 2.0
+ * {@code 2.0.* > 2.0.1 > 2.0.0 > 2.0.ea > 2.0 }
  * </pre>
  *
  * @author

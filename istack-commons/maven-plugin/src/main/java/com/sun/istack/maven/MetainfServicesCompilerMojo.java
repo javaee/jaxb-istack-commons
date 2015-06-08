@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -66,9 +66,9 @@ import org.apache.maven.plugin.MojoExecutionException;
  *
  * @author japod
  *
- * @goal metainf-services
+ * Goal: metainf-services
  *
- * @phase generate-sources
+ * Phase: generate-sources
  */
 public class MetainfServicesCompilerMojo extends AbstractMojo {
 
@@ -76,49 +76,49 @@ public class MetainfServicesCompilerMojo extends AbstractMojo {
      * Collection of ArtifactItems to take the META-INF/services from. (ArtifactItem contains groupId,
      * artifactId, version)
      *
-     * @parameter
-     * @required
+     * parameter
+     * required
      * @since 1.0
      */
     private List<ArtifactItem> artifactItems;
     /**
      * Collection of files from META-INF/services to compile
      *
-     * @parameter
-     * @required
+     * parameter
+     * required
      * @since 1.0
      */
     private List<String> providers;
     /**
      * Destination for the generated service registry files
      *
-     * @parameter
-     * @required
+     * parameter
+     * required
      * @since 1.0
      */
     private File destDir;
     /**
-     * @component role="org.apache.maven.artifact.factory.ArtifactFactory"
-     * @required
-     * @readonly
+     * component role="org.apache.maven.artifact.factory.ArtifactFactory"
+     * required
+     * readonly
      */
     protected ArtifactFactory artifactFactory;
     /**
-     * @component role="org.apache.maven.artifact.resolver.ArtifactResolver"
-     * @required
-     * @readonly
+     * component role="org.apache.maven.artifact.resolver.ArtifactResolver"
+     * required
+     * readonly
      */
     protected ArtifactResolver artifactResolver;
     /**
-     * @parameter expression="${project.remoteArtifactRepositories}"
-     * @readonly
-     * @required
+     * parameter expression="${project.remoteArtifactRepositories}"
+     * readonly
+     * required
      */
     protected java.util.List remoteRepositories;
     /**
-     * @parameter expression="${localRepository}"
-     * @readonly
-     * @required
+     * parameter expression="${localRepository}"
+     * readonly
+     * required
      */
     protected ArtifactRepository localRepository;
 
