@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,14 +40,6 @@
 
 package com.oracle.istack.maven;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
@@ -60,6 +52,15 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -90,10 +91,10 @@ public class PropertyResolver {
             
     /**
      *
-     * @param project
-     * @throws FileNotFoundException
-     * @throws IOException
-     * @throws XmlPullParserException
+     * @param project maven project
+     * @throws FileNotFoundException properties not found
+     * @throws IOException IO error
+     * @throws XmlPullParserException error parsing xml
      */
     public void resolveProperties(MavenProject project) throws FileNotFoundException, IOException, XmlPullParserException {
         logger.info("Resolving properties for " + project.getGroupId() + ":" + project.getArtifactId());
