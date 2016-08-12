@@ -52,7 +52,7 @@
 
     <groupId>com.sun.istack</groupId>
     <artifactId>istack-commons</artifactId>
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0</version>
     <packaging>pom</packaging>
 
     <name>istack common utility code</name>
@@ -105,9 +105,9 @@
     </modules>
   
     <scm>
-        <developerConnection>scm:svn:https://svn.java.net/svn/istack-commons~svn/trunk/istack-commons</developerConnection>
-        <connection>scm:svn:https://svn.java.net/svn/istack-commons~svn/trunk/istack-commons</connection>
-        <url>http://java.net/projects/istack-commons/sources/svn/show/trunk/istack-commons</url>
+        <developerConnection>scm:svn:https://svn.java.net/svn/istack-commons~svn/tags/istack-commons-3.0</developerConnection>
+        <connection>scm:svn:https://svn.java.net/svn/istack-commons~svn/tags/istack-commons-3.0</connection>
+        <url>http://java.net/projects/istack-commons/sources/svn/show/tags/istack-commons-3.0</url>
     </scm>
 
     <build>
