@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -76,11 +76,19 @@ public class Localizer {
             // this message is not localizable
             return (String) l.getArguments()[0];
         }
+
         String bundlename = l.getResourceBundleName();
 
         try {
             ResourceBundle bundle =
                 (ResourceBundle) _resourceBundles.get(bundlename);
+
+            if (bundle == null) {
+                bundle = l.getResourceBundle(_locale);
+                if (bundle != null) {
+                    _resourceBundles.put(bundlename, bundle);
+                }
+            }
 
             if (bundle == null) {
                 try {
@@ -110,7 +118,7 @@ public class Localizer {
                                 // give up
                                 return getDefaultMessage(l);
                             }
-                            
+
                         }
                     }
                 }
@@ -166,5 +174,4 @@ public class Localizer {
         }
         return sb.toString();
     }
-
 }

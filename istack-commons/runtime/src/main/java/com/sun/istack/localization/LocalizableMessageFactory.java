@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,19 +40,38 @@
 
 package com.sun.istack.localization;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 /**
  * @author WS Development Team
  */
 public class LocalizableMessageFactory {
 
     private final String _bundlename;
+    private final ResourceBundleSupplier _rbSupplier;
 
     public LocalizableMessageFactory(String bundlename) {
         _bundlename = bundlename;
+        _rbSupplier = null;
+    }
+
+    public LocalizableMessageFactory(String bundlename, ResourceBundleSupplier rbSupplier) {
+        _bundlename = bundlename;
+        _rbSupplier = rbSupplier;
     }
 
     public Localizable getMessage(String key, Object... args) {
-        return new LocalizableMessage(_bundlename, key, args);
+        return new LocalizableMessage(_bundlename, _rbSupplier, key, args);
+    }
+
+    public interface ResourceBundleSupplier {
+        /**
+         * Gets the ResourceBundle.
+         * @param locale the requested bundle's locale
+         * @return ResourceBundle
+         */
+        ResourceBundle getResourceBundle(Locale locale);
     }
 
 }
