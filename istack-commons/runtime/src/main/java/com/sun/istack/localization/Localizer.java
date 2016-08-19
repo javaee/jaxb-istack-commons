@@ -40,6 +40,7 @@
 
 package com.sun.istack.localization;
 
+import com.sun.istack.localization.LocalizableMessageFactory.ResourceBundleSupplier;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Locale;
