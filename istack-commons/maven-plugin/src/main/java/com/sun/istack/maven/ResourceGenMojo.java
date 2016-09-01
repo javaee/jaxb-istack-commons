@@ -40,26 +40,39 @@
 
 package com.sun.istack.maven;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+import com.sun.codemodel.CodeWriter;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JInvocation;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JPackage;
+import com.sun.codemodel.writer.FileCodeWriter;
+import com.sun.codemodel.writer.FilterCodeWriter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
+import org.codehaus.plexus.util.StringUtils;
 
-import com.sun.codemodel.*;
-import com.sun.codemodel.writer.FileCodeWriter;
-import com.sun.codemodel.writer.FilterCodeWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.codehaus.plexus.util.StringUtils;
+import java.util.Properties;
 
 
 /**
@@ -74,6 +87,7 @@ import org.codehaus.plexus.util.StringUtils;
  * RequiresProject: false
  * Phase: process-sources
  */
+@Mojo(name = "rs-gen", requiresProject = false, defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class ResourceGenMojo extends AbstractMojo {
 
     /**
@@ -81,12 +95,14 @@ public class ResourceGenMojo extends AbstractMojo {
      * @parameter expression="${destDir}" default-value="${project.build.directory}/generated-sources/resources
      * @required
      */
+    @Parameter
     private File destDir;
 
     /**
      * File set of the properties files to be processed.
      * @parameter
      */
+    @Parameter
     private FileSet resources;
 
     /**
@@ -94,24 +110,28 @@ public class ResourceGenMojo extends AbstractMojo {
      * @parameter expression="${resources}"
      * @since 2.12
      */
+    @Parameter
     private String cliResource;
 
     /**
      * package to be used for the localization utility classes
      * @parameter expression="${localizationUtilitiesPkgName}" default-value="com.sun.istack.localization"
      */
+    @Parameter
     private String localizationUtilitiesPkgName;
 
     /**
      * @parameter expression="${license}"
      * @since 2.12
      */
+    @Parameter
     private File license;
 
     /**
      * @parameter expression="${encoding}" default-value="${project.build.sourceEncoding}"
      * @since 2.12
      */
+    @Parameter
     private String encoding;
 
     /**

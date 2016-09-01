@@ -40,6 +40,19 @@
 
 package com.sun.istack.maven;
 
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.impl.ArtifactResolver;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -51,15 +64,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.versioning.VersionRange;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
 
 /**
  * Goal which compiles META-INF/services files from various dependencies
@@ -70,6 +74,7 @@ import org.apache.maven.plugin.MojoExecutionException;
  *
  * Phase: generate-sources
  */
+@Mojo(name = "metainf-services", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class MetainfServicesCompilerMojo extends AbstractMojo {
 
     /**
@@ -97,12 +102,7 @@ public class MetainfServicesCompilerMojo extends AbstractMojo {
      * @since 1.0
      */
     private File destDir;
-    /**
-     * component role="org.apache.maven.artifact.factory.ArtifactFactory"
-     * required
-     * readonly
-     */
-    protected ArtifactFactory artifactFactory;
+
     /**
      * component role="org.apache.maven.artifact.resolver.ArtifactResolver"
      * required
@@ -114,7 +114,16 @@ public class MetainfServicesCompilerMojo extends AbstractMojo {
      * readonly
      * required
      */
-    protected java.util.List remoteRepositories;
+    protected List<RemoteRepository> remoteRepositories;
+
+    /**
+     * The current repository/network configuration of Maven.
+     *
+     * @parameter default-value="${repositorySystemSession}"
+     * @readonly
+     */
+    private RepositorySystemSession repoSession;
+
     /**
      * parameter expression="${localRepository}"
      * readonly
@@ -154,8 +163,13 @@ public class MetainfServicesCompilerMojo extends AbstractMojo {
                     InputStreamReader isReader = null;
                     for (ArtifactItem ai : artifactItems) {
                         Artifact artifact;
-                        artifact = artifactFactory.createExtensionArtifact(ai.getGroupId(), ai.getArtifactId(), VersionRange.createFromVersion(ai.getVersion()));
-                        artifactResolver.resolve(artifact, remoteRepositories, localRepository);
+                        artifact = new DefaultArtifact(ai.getGroupId(), ai.getArtifactId(), null, ai.getVersion());
+//                        artifact = artifactFactory.createExtensionArtifact(ai.getGroupId(), ai.getArtifactId(), VersionRange.createFromVersion(ai.getVersion()));
+
+                        ArtifactRequest request = new ArtifactRequest();
+                        request.setArtifact( artifact );
+                        request.setRepositories(remoteRepositories);
+                        artifactResolver.resolveArtifact(repoSession, request);
                         zipFile = new ZipFile(artifact.getFile());
                         final ZipEntry servicesEntry = zipFile.getEntry("META-INF/services/" + spi);
                         if (servicesEntry != null) {
@@ -177,9 +191,8 @@ public class MetainfServicesCompilerMojo extends AbstractMojo {
                         }
                     }
                 } catch (ArtifactResolutionException ex) {
-                    throw new MojoExecutionException("Can not resolve artifact!", ex);
-                } catch (ArtifactNotFoundException ex) {
                     Logger.getLogger(MetainfServicesCompilerMojo.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new MojoExecutionException("Can not resolve artifact!", ex);
                 } finally {
                     if (zipFile != null) {
                         zipFile.close();
