@@ -105,9 +105,9 @@
     </modules>
   
     <scm>
-        <developerConnection>scm:svn:https://svn.java.net/svn/istack-commons~svn/tags/istack-commons-3.0.2</developerConnection>
-        <connection>scm:svn:https://svn.java.net/svn/istack-commons~svn/tags/istack-commons-3.0.2</connection>
-        <url>http://java.net/projects/istack-commons/sources/svn/show/tags/istack-commons-3.0.2</url>
+        <developerConnection>scm:svn:https://svn.java.net/svn/istack-commons~svn/trunk/istack-commons</developerConnection>
+        <connection>scm:svn:https://svn.java.net/svn/istack-commons~svn/trunk/istack-commons</connection>
+        <url>http://java.net/projects/istack-commons/sources/svn/show/trunk/istack-commons</url>
     </scm>
 
     <build>
@@ -158,7 +158,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>3.0.4</version>
+                    <version>2.5.2</version>
                     <configuration>
                         <skip>${findbugs.skip}</skip>
                         <threshold>${findbugs.threshold}</threshold>
