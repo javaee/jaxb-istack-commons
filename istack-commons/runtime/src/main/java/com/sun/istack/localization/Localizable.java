@@ -69,9 +69,7 @@ public interface Localizable {
     public Object[] getArguments();
     public String getResourceBundleName();
 
-    public default ResourceBundle getResourceBundle(Locale locale) {
-        return null;
-    }
+    public ResourceBundle getResourceBundle(Locale locale);
 
     /**
      * Special constant that represents a message that
