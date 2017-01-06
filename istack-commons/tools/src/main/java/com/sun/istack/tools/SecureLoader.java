@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,9 +40,12 @@
 
 package com.sun.istack.tools;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 /**
  * Class defined for safe calls of getClassLoader methods of any kind (context/system/class
- * classloader. This MUST be package private and defined in every package which 
+ * classloader. This MUST be package private and defined in every package which
  * uses such invocations.
  * @author snajper
  */
@@ -52,9 +55,10 @@ class SecureLoader {
         if (System.getSecurityManager() == null) {
             return Thread.currentThread().getContextClassLoader();
         } else {
-            return (ClassLoader) java.security.AccessController.doPrivileged(
-                    new java.security.PrivilegedAction() {
-                        public java.lang.Object run() {
+            return AccessController.doPrivileged(
+                    new PrivilegedAction<ClassLoader>() {
+                        @Override
+                        public ClassLoader run() {
                             return Thread.currentThread().getContextClassLoader();
                         }
                     });
@@ -65,9 +69,10 @@ class SecureLoader {
         if (System.getSecurityManager() == null) {
             return c.getClassLoader();
         } else {
-            return (ClassLoader) java.security.AccessController.doPrivileged(
-                    new java.security.PrivilegedAction() {
-                        public java.lang.Object run() {
+            return AccessController.doPrivileged(
+                    new PrivilegedAction<ClassLoader>() {
+                        @Override
+                        public ClassLoader run() {
                             return c.getClassLoader();
                         }
                     });
@@ -78,22 +83,24 @@ class SecureLoader {
         if (System.getSecurityManager() == null) {
             return ClassLoader.getSystemClassLoader();
         } else {
-            return (ClassLoader) java.security.AccessController.doPrivileged(
-                    new java.security.PrivilegedAction() {
-                        public java.lang.Object run() {
+            return AccessController.doPrivileged(
+                    new PrivilegedAction<ClassLoader>() {
+                        @Override
+                        public ClassLoader run() {
                             return ClassLoader.getSystemClassLoader();
                         }
                     });
         }
     }
-    
+
     static ClassLoader getParentClassLoader(final ClassLoader cl) {
         if (System.getSecurityManager() == null) {
             return cl.getParent();
         } else {
-            return (ClassLoader) java.security.AccessController.doPrivileged(
-                    new java.security.PrivilegedAction() {
-                        public java.lang.Object run() {
+            return AccessController.doPrivileged(
+                    new PrivilegedAction<ClassLoader>() {
+                        @Override
+                        public ClassLoader run() {
                             return cl.getParent();
                         }
                     });
@@ -104,14 +111,15 @@ class SecureLoader {
         if (System.getSecurityManager() == null) {
             Thread.currentThread().setContextClassLoader(cl);
         } else {
-            java.security.AccessController.doPrivileged(
-                    new java.security.PrivilegedAction() {
-                        public java.lang.Object run() {
+            AccessController.doPrivileged(
+                    new PrivilegedAction<ClassLoader>() {
+                        @Override
+                        public ClassLoader run() {
                             Thread.currentThread().setContextClassLoader(cl);
                             return null;
                         }
                     });
         }
     }
-    
+
 }

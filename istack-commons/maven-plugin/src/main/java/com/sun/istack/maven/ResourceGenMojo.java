@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,6 +41,7 @@
 package com.sun.istack.maven;
 
 import com.sun.codemodel.CodeWriter;
+import com.sun.codemodel.JAnnotationUse;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
@@ -51,6 +52,7 @@ import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JPackage;
+import com.sun.codemodel.JVar;
 import com.sun.codemodel.writer.FileCodeWriter;
 import com.sun.codemodel.writer.FilterCodeWriter;
 import org.apache.maven.plugin.AbstractMojo;
@@ -73,6 +75,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.annotation.Generated;
 
 
 /**
@@ -92,55 +95,57 @@ public class ResourceGenMojo extends AbstractMojo {
 
     /**
      * Location of the destination directory.
-     * @parameter expression="${destDir}" default-value="${project.build.directory}/generated-sources/resources
-     * @required
      */
-    @Parameter
+    @Parameter(required = true, property = "destDir", defaultValue = "${project.build.directory}/generated-sources/resources")
     private File destDir;
 
     /**
      * File set of the properties files to be processed.
-     * @parameter
      */
     @Parameter
     private FileSet resources;
 
     /**
      * Directory with properties files to be processed from the command line.
-     * @parameter expression="${resources}"
      * @since 2.12
      */
-    @Parameter
+    @Parameter(property = "resources")
     private String cliResource;
 
     /**
-     * package to be used for the localization utility classes
-     * @parameter expression="${localizationUtilitiesPkgName}" default-value="com.sun.istack.localization"
+     * Package to be used for the localization utility classes.
      */
-    @Parameter
+    @Parameter(property = "localizationUtilitiesPkgName", defaultValue = "com.sun.istack.localization")
     private String localizationUtilitiesPkgName;
 
     /**
-     * @parameter expression="${license}"
+     * License file to use in generated sources.
      * @since 2.12
      */
-    @Parameter
+    @Parameter(property = "license")
     private File license;
 
     /**
-     * @parameter expression="${encoding}" default-value="${project.build.sourceEncoding}"
+     * File encoding for generated sources.
      * @since 2.12
      */
-    @Parameter
+    @Parameter(property = "encoding", defaultValue = "${project.build.sourceEncoding}")
     private String encoding;
 
     /**
-     * @parameter expression="${project}"
-     * @readonly
+     * JDK version for which to generate sources.
+     * @since 3.0.4
+     */
+    @Parameter(defaultValue = "7")
+    private int version;
+
+    /**
      * @since 2.12
      */
+    @Parameter(property = "project", readonly = true)
     private MavenProject project;
-    
+
+    @Override
     public void execute() throws MojoExecutionException {
 
         if(resources == null && cliResource == null) {
@@ -149,7 +154,7 @@ public class ResourceGenMojo extends AbstractMojo {
         if(destDir == null) {
             throw new MojoExecutionException("No destdir attribute is specified");
         }
-        
+
         if(localizationUtilitiesPkgName == null) {
             localizationUtilitiesPkgName = "com.sun.istack.localization";
         }
@@ -169,29 +174,29 @@ public class ResourceGenMojo extends AbstractMojo {
         }
 
         FileSetManager fileSetManager = new FileSetManager();
-        
+
         if (resources == null) {
             FileSet fs = new FileSet();
             fs.setDirectory(System.getProperty("user.dir"));
-            List l = new ArrayList();
+            List<String> l = new ArrayList<>();
             l.add(cliResource);
             fs.setIncludes(l);
             resources = fs;
         }
-        
+
         String[] includedFiles = fileSetManager.getIncludedFiles(resources);
 
         getLog().info("Resources:");
         for(String s : includedFiles) {
             getLog().info(s);
         }
-        
+
         JCodeModel cm = new JCodeModel();
 
         for (String value : includedFiles) {
 
             File res;
-            
+
             if (null == resources.getDirectory()) {
                 res = new File(value);
             } else {
@@ -243,12 +248,16 @@ public class ResourceGenMojo extends AbstractMojo {
                 "Defines string formatting method for each constant in the resource file"
             );
 
+            JAnnotationUse generated = clazz.annotate(Generated.class);
+            generated.param("value", ResourceGenMojo.class.getName());
+
             /*
               [RESULT]
-
-                LocalizableMessageFactory messageFactory =
-                    new LocalizableMessageFactory("com.sun.xml.ws.resources.client");
-                Localizer localizer = new Localizer();
+                
+                String BUNDLE_NAME = "com.sun.xml.ws.resources.client";
+                LocalizableMessageFactory MESSAGE_FACTORY =
+                    new LocalizableMessageFactory(BUNDLE);
+                Localizer LOCALIZER = new Localizer();
             */
 
             JClass lmf_class;
@@ -262,11 +271,43 @@ public class ResourceGenMojo extends AbstractMojo {
                 throw new MojoExecutionException(e.getMessage(), e); // impossible -- but why parseType throwing ClassNotFoundExceptoin!?
             }
 
-            JFieldVar $msgFactory = clazz.field(JMod.PRIVATE|JMod.STATIC|JMod.FINAL,
-                lmf_class, "messageFactory", JExpr._new(lmf_class).arg(JExpr.lit(bundleName)));
+            JFieldVar $bundle = clazz.field(JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
+                    String.class, "BUNDLE_NAME", JExpr.lit(bundleName));
+            JInvocation factArgs = JExpr._new(lmf_class).arg($bundle);
+            JFieldVar $msgFactory = clazz.field(JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
+                lmf_class, "MESSAGE_FACTORY", factArgs);
+            JFieldVar $localizer = clazz.field(JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
+                l_class, "LOCALIZER", JExpr._new(l_class));
 
-            JFieldVar $localizer = clazz.field(JMod.PRIVATE|JMod.STATIC|JMod.FINAL,
-                l_class, "localizer", JExpr._new(l_class));
+
+
+            if (version > 7) {
+                /*
+                    [RESULT]
+
+                    LocalizableMessageFactory MESSAGE_FACTORY =
+                            new LocalizableMessageFactory(BUNDLE, CLASSNAME::getResourceBundle);
+
+                    ResourceBundle getResourceBundle(Locale locale) {
+                        return ResourceBundle.getBundle(BUNDLE_NAME, locale);
+                    }
+                */
+
+                factArgs.arg(JExpr.direct(className + "::getResourceBundle"));
+
+                JClass rbundle;
+                JClass locale;
+                try {
+                    rbundle = cm.parseType("java.util.ResourceBundle").boxify();
+                    locale = cm.parseType("java.util.Locale").boxify();
+                } catch (ClassNotFoundException e) {
+                    throw new MojoExecutionException(e.getMessage(), e); // impossible -- but why parseType throwing ClassNotFoundExceptoin!?
+                }
+
+                JMethod method = clazz.method(JMod.PRIVATE | JMod.STATIC, rbundle, "getResourceBundle");
+                JVar ploc = method.param(locale, "locale");
+                method.body()._return(rbundle.staticInvoke("getBundle").arg($bundle).arg(ploc));
+            }
 
             for (Map.Entry<Object,Object> e : props.entrySet()) {
                 // [RESULT]

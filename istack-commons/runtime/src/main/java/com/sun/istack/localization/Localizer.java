@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,7 +40,6 @@
 
 package com.sun.istack.localization;
 
-import com.sun.istack.localization.LocalizableMessageFactory.ResourceBundleSupplier;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Locale;
@@ -56,7 +55,7 @@ import java.util.ResourceBundle;
 public class Localizer {
 
     private final Locale _locale;
-    private final HashMap _resourceBundles;
+    private final HashMap<String, ResourceBundle> _resourceBundles;
 
     public Localizer() {
         this(Locale.getDefault());
@@ -64,7 +63,7 @@ public class Localizer {
 
     public Localizer(Locale l) {
         _locale = l;
-        _resourceBundles = new HashMap();
+        _resourceBundles = new HashMap<>();
     }
 
     public Locale getLocale() {
