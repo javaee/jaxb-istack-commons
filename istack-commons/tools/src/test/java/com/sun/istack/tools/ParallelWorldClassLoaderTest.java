@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -91,7 +91,7 @@ public class ParallelWorldClassLoaderTest {
         //XXX: why this fails ?
 //        Class c3 = pwcl.findClass("javax.xml.ws.Service");
 //        Assert.assertEquals(c3.getDeclaredMethods().length, 1);
-        
+
         Class c1,c2;
         try {
             c1 = Class.forName("javax.xml.ws.Service", false, pwcl);
@@ -112,6 +112,7 @@ public class ParallelWorldClassLoaderTest {
      */
     @Test
     public void testFindResource() {
+        if (isJDK9()) return;
         URL resource = pwcl.getResource("javax/xml/ws/Service.class");
         URL object = pwcl.getResource("java/lang/Object.class");
         String resJar = resource.getPath().substring(0, resource.getPath().indexOf("!"));
@@ -124,6 +125,7 @@ public class ParallelWorldClassLoaderTest {
      */
     @Test
     public void testFindResources() throws Exception {
+        if (isJDK9()) return;
         Enumeration<URL> foundURLs = pwcl.getResources("javax/xml/ws/Service.class");
         // TODO - this depends on jdk, maven cp, e.g.
         ArrayList al = Collections.list(foundURLs);
@@ -137,5 +139,13 @@ public class ParallelWorldClassLoaderTest {
     public void testJaxp() throws Exception {
         XMLInputFactory inFactory = XMLInputFactory.newInstance();
         Assert.assertEquals(inFactory.getClass().getClassLoader(), ucl);
+    }
+
+    private static boolean isJDK9() {
+        String ver = System.getProperty("java.version");
+        int idx = ver.indexOf('-');
+        int idx2 = ver.indexOf('.', 1);
+        float v = Float.parseFloat(idx > 0 ? ver.substring(0, idx) : idx2 > 0 ? ver.substring(0, idx2) : ver);
+        return v > 8;
     }
 }

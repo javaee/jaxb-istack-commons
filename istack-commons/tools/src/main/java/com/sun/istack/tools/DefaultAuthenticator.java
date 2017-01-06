@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.Authenticator;
 import java.net.Authenticator.RequestorType;
 import java.net.MalformedURLException;
@@ -56,6 +57,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -70,11 +73,12 @@ import org.xml.sax.helpers.LocatorImpl;
  */
 public class DefaultAuthenticator extends Authenticator {
 
+    private static final Logger LOGGER = Logger.getLogger(DefaultAuthenticator.class.getName());
     private static DefaultAuthenticator instance;
     private static Authenticator systemAuthenticator = getCurrentAuthenticator();
     private String proxyUser;
     private String proxyPasswd;
-    private final List<AuthInfo> authInfo = new ArrayList<AuthInfo>();
+    private final List<AuthInfo> authInfo = new ArrayList<>();
     private static int counter = 0;
 
     DefaultAuthenticator() {
@@ -159,10 +163,7 @@ public class DefaultAuthenticator extends Authenticator {
                 fi = new FileInputStream(f);
                 is = new InputStreamReader(fi, "UTF-8");
                 in = new BufferedReader(is);
-            } catch (UnsupportedEncodingException e) {
-                listener.onError(e, locator);
-                return;
-            } catch (FileNotFoundException e) {
+            } catch (UnsupportedEncodingException | FileNotFoundException e) {
                 listener.onError(e, locator);
                 return;
             }
@@ -184,7 +185,7 @@ public class DefaultAuthenticator extends Authenticator {
                 }
             } catch (IOException e) {
                 listener.onError(e, locator);
-                Logger.getLogger(DefaultAuthenticator.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         } finally {
             try {
@@ -198,7 +199,7 @@ public class DefaultAuthenticator extends Authenticator {
                     fi.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(DefaultAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -239,6 +240,29 @@ public class DefaultAuthenticator extends Authenticator {
     }
 
     static Authenticator getCurrentAuthenticator() {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<Authenticator>() {
+                @Override
+                public Authenticator run() throws Exception {
+                    Method method = Authenticator.class.getMethod("getDefault");
+                    return (Authenticator) method.invoke(null);
+                }
+
+            });
+        } catch (PrivilegedActionException pae) {
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.log(Level.FINE, null, pae);
+            }
+            Exception ex = pae.getException();
+            if (!(ex instanceof NoSuchMethodException)) {
+                // if Authenticator.getDefault has not been found,
+                // we likely didn't get through sec, so return null
+                // and don't care about JDK version we're on
+                return null;
+            }
+            // or we're on JDK <9, so let's continue the old way...
+        }
+
         final Field f = getTheAuthenticator();
         if (f == null) {
             return null;
@@ -253,7 +277,7 @@ public class DefaultAuthenticator extends Authenticator {
                 }
             });
             return (Authenticator) f.get(null);
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | IllegalArgumentException ex) {
             return null;
         } finally {
             AccessController.doPrivileged(new PrivilegedAction<Void>() {
@@ -269,7 +293,7 @@ public class DefaultAuthenticator extends Authenticator {
     private static Field getTheAuthenticator() {
         try {
             return Authenticator.class.getDeclaredField("theAuthenticator");
-        } catch (Exception ex) {
+        } catch (NoSuchFieldException | SecurityException ex) {
             return null;
         }
     }
@@ -291,7 +315,7 @@ public class DefaultAuthenticator extends Authenticator {
         @Override
         public void onError(Exception e, Locator loc) {
             System.err.println(getLocationString(loc) + ": " + e.getMessage());
-            Logger.getLogger(DefaultAuthenticator.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
         private String getLocationString(Locator l) {
