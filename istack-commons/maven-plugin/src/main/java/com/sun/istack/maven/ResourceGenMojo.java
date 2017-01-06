@@ -133,13 +133,6 @@ public class ResourceGenMojo extends AbstractMojo {
     private String encoding;
 
     /**
-     * JDK version for which to generate sources.
-     * @since 3.0.4
-     */
-    @Parameter(defaultValue = "7")
-    private int version;
-
-    /**
      * @since 2.12
      */
     @Parameter(property = "project", readonly = true)
@@ -253,61 +246,51 @@ public class ResourceGenMojo extends AbstractMojo {
 
             /*
               [RESULT]
-                
-                String BUNDLE_NAME = "com.sun.xml.ws.resources.client";
-                LocalizableMessageFactory MESSAGE_FACTORY =
-                    new LocalizableMessageFactory(BUNDLE);
-                Localizer LOCALIZER = new Localizer();
+
+            String BUNDLE_NAME = "com.sun.xml.ws.resources.client";
+            LocalizableMessageFactory MESSAGE_FACTORY =
+                    new LocalizableMessageFactory(BUNDLE_NAME, new BundleSupplier());
+            Localizer LOCALIZER = new Localizer();
+
+            class BundleSupplier implements ResourceBundleSupplier {
+
+                public ResourceBundle getResourceBundle(Locale locale) {
+                    return ResourceBundle.getBundle(BUNDLE_NAME, locale);
+                }
+            }
             */
 
-            JClass lmf_class;
-            JClass l_class;
-            JClass lable_class;
+            JClass lmf_class, l_class, lable_class;
+            JClass supplier_class, rbundle_class, locale_class;
             try {
                 lmf_class = cm.parseType(addLocalizationUtilityPackageName("LocalizableMessageFactory")).boxify();
                 l_class = cm.parseType(addLocalizationUtilityPackageName("Localizer")).boxify();
                 lable_class = cm.parseType(addLocalizationUtilityPackageName("Localizable")).boxify();
+                supplier_class = cm.parseType(addLocalizationUtilityPackageName("LocalizableMessageFactory.ResourceBundleSupplier")).boxify();
+                rbundle_class = cm.parseType("java.util.ResourceBundle").boxify();
+                locale_class = cm.parseType("java.util.Locale").boxify();
             } catch (ClassNotFoundException e) {
                 throw new MojoExecutionException(e.getMessage(), e); // impossible -- but why parseType throwing ClassNotFoundExceptoin!?
             }
 
             JFieldVar $bundle = clazz.field(JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
                     String.class, "BUNDLE_NAME", JExpr.lit(bundleName));
-            JInvocation factArgs = JExpr._new(lmf_class).arg($bundle);
+
+            JDefinedClass supplier;
+            try {
+                supplier = clazz._class(JMod.PRIVATE | JMod.STATIC, "BundleSupplier");
+                supplier._implements(supplier_class);
+                JMethod rb = supplier.method(JMod.PUBLIC, rbundle_class, "getResourceBundle");
+                JVar ploc = rb.param(locale_class, "locale");
+                rb.body()._return(rbundle_class.staticInvoke("getBundle").arg($bundle).arg(ploc));
+            } catch (JClassAlreadyExistsException e) {
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
+
             JFieldVar $msgFactory = clazz.field(JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
-                lmf_class, "MESSAGE_FACTORY", factArgs);
+                lmf_class, "MESSAGE_FACTORY", JExpr._new(lmf_class).arg($bundle).arg(JExpr._new(supplier)));
             JFieldVar $localizer = clazz.field(JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
                 l_class, "LOCALIZER", JExpr._new(l_class));
-
-
-
-            if (version > 7) {
-                /*
-                    [RESULT]
-
-                    LocalizableMessageFactory MESSAGE_FACTORY =
-                            new LocalizableMessageFactory(BUNDLE, CLASSNAME::getResourceBundle);
-
-                    ResourceBundle getResourceBundle(Locale locale) {
-                        return ResourceBundle.getBundle(BUNDLE_NAME, locale);
-                    }
-                */
-
-                factArgs.arg(JExpr.direct(className + "::getResourceBundle"));
-
-                JClass rbundle;
-                JClass locale;
-                try {
-                    rbundle = cm.parseType("java.util.ResourceBundle").boxify();
-                    locale = cm.parseType("java.util.Locale").boxify();
-                } catch (ClassNotFoundException e) {
-                    throw new MojoExecutionException(e.getMessage(), e); // impossible -- but why parseType throwing ClassNotFoundExceptoin!?
-                }
-
-                JMethod method = clazz.method(JMod.PRIVATE | JMod.STATIC, rbundle, "getResourceBundle");
-                JVar ploc = method.param(locale, "locale");
-                method.body()._return(rbundle.staticInvoke("getBundle").arg($bundle).arg(ploc));
-            }
 
             for (Map.Entry<Object,Object> e : props.entrySet()) {
                 // [RESULT]
@@ -363,7 +346,7 @@ public class ResourceGenMojo extends AbstractMojo {
     }
 
     private int countArgs(String value) {
-        List<String> x = new ArrayList<String>();
+        List<String> x = new ArrayList<>();
 
         while(true) {
             String r1 = MessageFormat.format(value, x.toArray());
@@ -401,6 +384,7 @@ public class ResourceGenMojo extends AbstractMojo {
          * for files. LicenseCodeWriter simply decorates this underlying
          * CodeWriter by adding prolog comments.
          * @param license license File
+         * @param encoding encoding
          */
         public LicenseCodeWriter(CodeWriter core, File license, String encoding) {
             super(core);
