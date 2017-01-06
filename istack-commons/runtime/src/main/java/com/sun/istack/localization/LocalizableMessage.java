@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -58,13 +58,9 @@ public final class LocalizableMessage implements Localizable {
     private final String _key;
     private final Object[] _args;
 
+    @Deprecated
     public LocalizableMessage(String bundlename, String key, Object... args) {
-        _bundlename = bundlename;
-        _rbSupplier = null;
-        _key = key;
-        if(args==null)
-            args = new Object[0];
-        _args = args;
+        this(bundlename, null, key, args);
     }
 
     public LocalizableMessage(String bundlename, ResourceBundleSupplier rbSupplier,
@@ -77,14 +73,17 @@ public final class LocalizableMessage implements Localizable {
         _args = args;
     }
 
+    @Override
     public String getKey() {
         return _key;
     }
 
+    @Override
     public Object[] getArguments() {
         return Arrays.copyOf(_args, _args.length);
     }
 
+    @Override
     public String getResourceBundleName() {
         return _bundlename;
     }
