@@ -54,13 +54,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <resgen.plugin.version>3.0.5-SNAPSHOT</resgen.plugin.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.sun.istack</groupId>
             <artifactId>istack-commons-runtime</artifactId>
-            <version>3.0.3</version>
+            <version>${resgen.plugin.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -74,7 +75,7 @@
             <plugin>
                 <groupId>com.sun.istack</groupId>
                 <artifactId>istack-commons-maven-plugin</artifactId>
-                <version>3.0.4-SNAPSHOT</version>
+                <version>${resgen.plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
