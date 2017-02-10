@@ -75,7 +75,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.annotation.Generated;
 
 
 /**
@@ -124,6 +123,13 @@ public class ResourceGenMojo extends AbstractMojo {
      */
     @Parameter(property = "license")
     private File license;
+
+    /**
+     * Mark generated sources with {@code @javax.annotation.Generated}.
+     * @since 3.0.5
+     */
+    @Parameter(property = "atGenerated", defaultValue = "true")
+    private boolean atGenerated;
 
     /**
      * File encoding for generated sources.
@@ -241,8 +247,12 @@ public class ResourceGenMojo extends AbstractMojo {
                 "Defines string formatting method for each constant in the resource file"
             );
 
-            JAnnotationUse generated = clazz.annotate(Generated.class);
-            generated.param("value", ResourceGenMojo.class.getName());
+            if (atGenerated) {
+                // no direct dependency on JSR-250 API
+                JClass annotation = cm.ref("javax.annotation.Generated");
+                JAnnotationUse generated = clazz.annotate(annotation);
+                generated.param("value", ResourceGenMojo.class.getName());
+            }
 
             /*
               [RESULT]
