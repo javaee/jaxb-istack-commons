@@ -143,6 +143,7 @@
                         </providerImplementations>
                         <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
                         <revisionOnScmFailure>false</revisionOnScmFailure>
+                        <useLastCommittedRevision>true</useLastCommittedRevision>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -209,6 +210,18 @@
                     </dependencies>
                 </plugin>
                 <plugin>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <configuration>
+                        <useDefaultManifestFile>true</useDefaultManifestFile>
+                        <archive>
+                            <manifestEntries>
+                                <Implementation-Build-Id>${scmBranch}-${buildNumber}, ${timestamp}</Implementation-Build-Id>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.0.2</version>
                 </plugin>
@@ -236,14 +249,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.10.4</version>
-                    <executions>
-                        <execution>
-                            <id>attach-javadocs</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -293,4 +298,31 @@
         <maven.api.version>3.3.9</maven.api.version>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>jvnet-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.1</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
