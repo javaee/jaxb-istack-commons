@@ -1,0 +1,16 @@
+theme: jekyll-theme-architect
+
+title: [jaxb-istack-commons]
+description: [Subproject of JAX-WS-XML: Shared code between JAXP, JAXB, SAAJ, and JAX-WS]
+
+# sidebar links url
+links:
+  source: https://github.com/javaee/jaxb-istack-commons
+  #download:
+  #mailinglist:
+  #javadocs:
+  #docs:
+  #faq:
+  #mailinglist:
+  #hide_issuetracker: true #set explicitly to 'true' if you don't want to have the issue tracker link displayed
+
