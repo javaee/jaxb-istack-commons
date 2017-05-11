@@ -1,7 +1,7 @@
 theme: jekyll-theme-architect
 
 title: [jaxb-istack-commons]
-description: [Subproject of JAX-WS-XML: Shared code between JAXP, JAXB, SAAJ, and JAX-WS]
+description: [Subproject of JAX-WS-XML]
 
 # sidebar links url
 links:

@@ -1,7 +1,6 @@
 # About
 
-Welcome to the jaxb-istack-commons project.
-
+Subproject of JAX-WS-XML: Shared code between JAXP, JAXB, SAAJ, and JAX-WS
 
 
 # IMPORTANT!
