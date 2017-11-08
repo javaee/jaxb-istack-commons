@@ -38,12 +38,13 @@
  * holder.
 */
 
-module jaxb.istack.runtime {
+module jaxb.istack.tools {
     requires java.logging;
     requires transitive java.xml;
-    requires transitive java.activation;
+    //requires java.compiler;
+    //requires jdk.compiler;
+    requires ant;
+   // requires transitive java.activation;
 
-    exports com.sun.istack;
-    exports com.sun.istack.localization;
-    exports com.sun.istack.logging;
+    exports com.sun.istack.tools;
 }
