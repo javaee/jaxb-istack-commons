@@ -41,10 +41,7 @@
 module jaxb.istack.tools {
     requires java.logging;
     requires transitive java.xml;
-    //requires java.compiler;
-    //requires jdk.compiler;
     requires ant;
-   // requires transitive java.activation;
 
     exports com.sun.istack.tools;
 }
