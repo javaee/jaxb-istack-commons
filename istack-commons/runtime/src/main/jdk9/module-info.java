@@ -38,7 +38,7 @@
  * holder.
 */
 
-module jaxb.istack.runtime {
+module com.sun.istack.runtime {
     requires java.logging;
     requires transitive java.xml;
     requires transitive java.activation;
