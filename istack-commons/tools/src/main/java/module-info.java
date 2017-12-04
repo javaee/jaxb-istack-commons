@@ -41,7 +41,6 @@
 module com.sun.istack.tools {
     requires java.logging;
     requires transitive java.xml;
-    requires ant;
 
     exports com.sun.istack.tools;
 }
