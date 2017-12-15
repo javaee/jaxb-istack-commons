@@ -105,9 +105,10 @@
     </modules>
 
     <scm>
-        <developerConnection>scm:svn:https://svn.java.net/svn/istack-commons~svn/trunk/istack-commons</developerConnection>
-        <connection>scm:svn:https://svn.java.net/svn/istack-commons~svn/trunk/istack-commons</connection>
-        <url>http://java.net/projects/istack-commons/sources/svn/show/trunk/istack-commons</url>
+        <connection>scm:git:ssh://git@github.com/javaee/jaxb-istack-commons.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/javaee/jaxb-istack-commons.git</developerConnection>
+        <url>https://github.com/javaee/jaxb-istack-commons</url>
+        <tag>HEAD</tag>
     </scm>
 
     <build>
