@@ -52,7 +52,7 @@
 
     <groupId>com.sun.istack</groupId>
     <artifactId>istack-commons</artifactId>
-    <version>3.0.6-SNAPSHOT</version>
+    <version>3.0.6</version>
     <packaging>pom</packaging>
 
     <name>istack common utility code</name>
@@ -108,7 +108,7 @@
         <connection>scm:git:ssh://git@github.com/javaee/jaxb-istack-commons.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/javaee/jaxb-istack-commons.git</developerConnection>
         <url>https://github.com/javaee/jaxb-istack-commons</url>
-        <tag>HEAD</tag>
+        <tag>3.0.6</tag>
     </scm>
 
     <build>
